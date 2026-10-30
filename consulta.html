@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consultar proyecto | Feria Científica 2027</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand-mark">FC<span>27</span></div>
+    <div>
+      <p class="eyebrow">Instituto Benigno Jiménez Garay</p>
+      <h1>Consulta de proyectos</h1>
+    </div>
+    <nav>
+      <a href="index.html">Inscripción</a>
+      <a href="admin.html">Administración</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="intro">
+    <p class="eyebrow">Seguimiento</p>
+    <h2>Consulta el estado de tu proyecto</h2>
+    <p>Introduce el código que recibiste al completar la inscripción.</p>
+  </section>
+
+  <section class="panel">
+    <form id="consultaForm">
+      <label>Código del proyecto
+        <input id="codigo" required placeholder="Ej. BIO-0001" maxlength="20">
+      </label>
+
+      <button class="button primary full" type="submit">
+        Consultar
+      </button>
+    </form>
+
+    <div id="consultaResult" class="result-box" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">Feria Científica 2027</div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/consulta.js"></script>
+</body>
+</html>
