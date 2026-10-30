@@ -1,4 +1,3 @@
-
 let token = "";
 let role = "";
 let selected = null;
@@ -56,6 +55,11 @@ $("loginForm").addEventListener("submit", async event => {
       `Sesión: ${data.nombre} · Rol: ${role}`;
 
     $("usersPanel").classList.toggle(
+      "hidden",
+      role !== "administrador"
+    );
+
+    $("massPanel").classList.toggle(
       "hidden",
       role !== "administrador"
     );
@@ -177,6 +181,11 @@ function showDetail(project) {
 
       <textarea id="obs" rows="2" placeholder="Observaciones para el equipo">${esc(project.observaciones || "")}</textarea>
 
+      <label class="check">
+        <input type="checkbox" id="notify" checked>
+        <span>Notificar al líder por correo si cambia el estado u observaciones</span>
+      </label>
+
       <button class="button primary" id="saveStatus">
         Guardar evaluación
       </button>
@@ -196,14 +205,17 @@ async function saveStatus() {
     const data = await call("actualizar", {
       codigo: selected.codigo,
       estado: $("newStatus").value,
-      observaciones: $("obs").value
+      observaciones: $("obs").value,
+      notificar: $("notify").checked
     });
 
     if (!data.ok) {
       throw new Error(data.error);
     }
 
-    $("saveMessage").textContent = "Actualización guardada.";
+    $("saveMessage").textContent = data.notificado
+      ? "Actualización guardada y correo enviado al líder."
+      : "Actualización guardada.";
 
     await refresh();
 
@@ -237,6 +249,58 @@ $("userForm").addEventListener("submit", async event => {
     $("userMessage").textContent = error.message;
   }
 });
+
+// Comunicado masivo
+async function sendMass(prueba) {
+  const msg = $("massMessage");
+  const asunto = $("massAsunto").value.trim();
+  const mensaje = $("massMensaje").value.trim();
+
+  if (!asunto || !mensaje) {
+    msg.textContent = "Escribe el asunto y el mensaje.";
+    return;
+  }
+
+  if (!prueba && !confirm("¿Enviar este comunicado a todos los equipos del filtro seleccionado? No se puede deshacer.")) {
+    return;
+  }
+
+  $("massTest").disabled = true;
+  $("massSend").disabled = true;
+  msg.textContent = prueba ? "Enviando prueba…" : "Enviando comunicado…";
+
+  try {
+    const data = await call("enviarMasivo", {
+      asunto,
+      mensaje,
+      filtroArea: $("massArea").value,
+      filtroEstado: $("massEstado").value,
+      prueba
+    });
+
+    if (!data.ok) {
+      throw new Error(data.error);
+    }
+
+    msg.textContent = prueba
+      ? "Prueba enviada a tu correo."
+      : `Comunicado enviado a ${data.enviados} equipo(s)` +
+        (data.fallidos ? ` · ${data.fallidos} fallido(s)` : ".");
+
+  } catch (error) {
+    msg.textContent = error.message;
+  } finally {
+    $("massTest").disabled = false;
+    $("massSend").disabled = false;
+  }
+}
+
+$("massForm").addEventListener("submit", event => {
+  event.preventDefault();
+  sendMass(false);
+});
+
+$("massTest").onclick = () => sendMass(true);
 
 // Evitar insertar texto recibido como HTML
 function esc(value) {
