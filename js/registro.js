@@ -1,4 +1,3 @@
-
 const AREAS = [
   ["Biología", "BIO", "Estudio de los seres vivos y sus procesos."],
   ["Ciencias Ambientales", "CAM", "Ambiente, ecosistemas y sostenibilidad."],
@@ -164,7 +163,7 @@ form.addEventListener("submit", async event => {
         <p class="eyebrow">Inscripción recibida</p>
         <h2>Registro completado</h2>
         <p>El código asignado a tu proyecto es:</p>
-        <strong>${response.codigo}</strong>
+        <strong>${escapeHtml(response.codigo)}</strong>
         <p>Guarda este código para consultar el estado de tu proyecto.</p>
         <p class="muted">
           Se envió una confirmación al correo registrado,
@@ -182,3 +181,13 @@ form.addEventListener("submit", async event => {
     btn.textContent = "Enviar inscripción";
   }
 });
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[character]));
+}
