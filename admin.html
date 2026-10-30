@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel administrativo | Feria Científica 2027</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand-mark">FC<span>27</span></div>
+    <div>
+      <p class="eyebrow">Acceso restringido</p>
+      <h1>Panel administrativo</h1>
+    </div>
+    <nav>
+      <a href="index.html">Inscripción</a>
+      <a href="consulta.html">Consulta</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container admin-layout">
+
+  <section id="loginPanel" class="panel narrow-panel">
+    <p class="eyebrow">Organización</p>
+    <h2>Iniciar sesión</h2>
+
+    <form id="loginForm">
+      <label>Correo autorizado
+        <input id="loginEmail" type="email" required autocomplete="username">
+      </label>
+
+      <label>Contraseña
+        <input id="loginPassword" type="password" required autocomplete="current-password">
+      </label>
+
+      <div id="loginMessage" class="message" role="status"></div>
+
+      <button class="button primary full" type="submit">
+        Entrar
+      </button>
+    </form>
+
+    <p class="fine-print">
+      El acceso se verifica en Google Apps Script.
+    </p>
+  </section>
+
+  <section id="dashboard" class="hidden">
+
+    <div class="dashboard-head">
+      <div>
+        <p class="eyebrow">Área de organización</p>
+        <h2>Gestión de inscripciones</h2>
+        <p id="sessionLabel" class="muted"></p>
+      </div>
+
+      <button id="logoutBtn" class="button secondary">
+        Cerrar sesión
+      </button>
+    </div>
+
+    <div id="stats" class="stats-grid"></div>
+
+    <section class="panel">
+      <div class="toolbar">
+        <h3>Proyectos registrados</h3>
+        <button id="refreshBtn" class="button secondary">
+          Actualizar
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Área</th>
+              <th>Proyecto</th>
+              <th>Líder</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="projectsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="detailPanel">
+      <h3>Detalle y evaluación</h3>
+      <p class="muted">
+        Selecciona un proyecto de la tabla para ver sus datos y actualizar su estado.
+      </p>
+      <div id="projectDetail"></div>
+    </section>
+
+    <section class="panel hidden" id="usersPanel">
+      <h3>Crear cuenta de organización</h3>
+      <p class="muted">Disponible únicamente para administradores.</p>
+
+      <form id="userForm" class="form-grid">
+        <label>Nombre
+          <input id="newName" required>
+        </label>
+
+        <label>Correo
+          <input id="newEmail" type="email" required>
+        </label>
+
+        <label>Rol
+          <select id="newRole">
+            <option value="evaluador">Evaluador</option>
+            <option value="consulta">Consulta</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </label>
+
+        <label>Contraseña temporal
+          <input id="newPassword" type="password" minlength="12" required>
+        </label>
+
+        <button class="button primary" type="submit">
+          Crear cuenta
+        </button>
+      </form>
+
+      <div id="userMessage" class="message"></div>
+    </section>
+
+  </section>
+</main>
+
+<footer>
+  <div class="container">Feria Científica 2027 · Acceso autorizado</div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
