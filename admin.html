@@ -132,4 +132,61 @@
         </label>
 
         <label class="full">Asunto
-          <input id="massAsunto" maxlength="150" required pl
+          <input id="massAsunto" type="text" maxlength="150" required placeholder="Asunto del comunicado">
+        </label>
+
+        <label class="full">Mensaje
+          <textarea id="massMensaje" rows="7" required placeholder="Escribe el comunicado. Puedes personalizarlo con los marcadores indicados arriba."></textarea>
+        </label>
+
+        <div class="full">
+          <div id="massMessage" class="message" role="status" aria-live="polite"></div>
+          <div class="admin-actions">
+            <button id="massTest" class="button secondary" type="button">Enviar prueba</button>
+            <button id="massSend" class="button primary" type="submit">Enviar comunicado</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel hidden" id="usersPanel">
+      <h3>Administración de usuarios</h3>
+      <p class="muted">
+        Crea cuentas para las personas autorizadas a utilizar el panel administrativo.
+      </p>
+
+      <form id="userForm" class="form-grid">
+        <label>Nombre completo
+          <input id="newName" type="text" maxlength="120" required>
+        </label>
+
+        <label>Correo electrónico
+          <input id="newEmail" type="email" maxlength="150" required>
+        </label>
+
+        <label>Rol
+          <select id="newRole" required>
+            <option value="evaluador">Evaluador</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </label>
+
+        <label>Contraseña temporal
+          <input id="newPassword" type="password" minlength="8" required autocomplete="new-password">
+        </label>
+
+        <div class="full">
+          <div id="userMessage" class="message" role="status" aria-live="polite"></div>
+          <button class="button primary" type="submit">Crear usuario</button>
+        </div>
+      </form>
+    </section>
+
+  </section>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+
+</body>
+</html>
