@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -99,47 +98,38 @@
       <div id="projectDetail"></div>
     </section>
 
-    <section class="panel hidden" id="usersPanel">
-      <h3>Crear cuenta de organización</h3>
-      <p class="muted">Disponible únicamente para administradores.</p>
+    <section class="panel hidden" id="massPanel">
+      <h3>Comunicado masivo</h3>
+      <p class="muted">
+        Envía un correo con el membrete de la feria a los líderes de los proyectos.
+        Puedes usar los marcadores {{lider}}, {{codigo}}, {{titulo}}, {{area}} y {{estado}}.
+        Disponible únicamente para administradores.
+      </p>
 
-      <form id="userForm" class="form-grid">
-        <label>Nombre
-          <input id="newName" required>
-        </label>
-
-        <label>Correo
-          <input id="newEmail" type="email" required>
-        </label>
-
-        <label>Rol
-          <select id="newRole">
-            <option value="evaluador">Evaluador</option>
-            <option value="consulta">Consulta</option>
-            <option value="administrador">Administrador</option>
+      <form id="massForm" class="form-grid">
+        <label>Área
+          <select id="massArea">
+            <option value="">Todas las áreas</option>
+            <option>Biología</option>
+            <option>Ciencias Ambientales</option>
+            <option>Ciencias de la Computación</option>
+            <option>Ciencias Sociales y del Comportamiento</option>
+            <option>Física y Matemática</option>
+            <option>Ingeniería y Tecnología</option>
+            <option>Química</option>
+            <option>Salud y Medicina</option>
           </select>
         </label>
 
-        <label>Contraseña temporal
-          <input id="newPassword" type="password" minlength="12" required>
+        <label>Estado
+          <select id="massEstado">
+            <option value="">Todos los estados</option>
+            <option>Recibido</option>
+            <option>En revisión</option>
+            <option>Aprobado</option>
+            <option>Rechazado</option>
+          </select>
         </label>
 
-        <button class="button primary" type="submit">
-          Crear cuenta
-        </button>
-      </form>
-
-      <div id="userMessage" class="message"></div>
-    </section>
-
-  </section>
-</main>
-
-<footer>
-  <div class="container">Feria Científica 2027 · Acceso autorizado</div>
-</footer>
-
-<script src="js/config.js"></script>
-<script src="js/admin.js"></script>
-</body>
-</html>
+        <label class="full">Asunto
+          <input id="massAsunto" maxlength="150" required pl
