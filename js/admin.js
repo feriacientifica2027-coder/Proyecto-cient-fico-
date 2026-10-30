@@ -5,13 +5,8 @@ let selected = null;
 const $ = id => document.getElementById(id);
 
 async function call(accion, extra = {}) {
-  if (
-    !window.FERIA_API_URL ||
-    window.FERIA_API_URL.includes("PEGA_AQUI")
-  ) {
-    throw new Error(
-      "Configura la URL de Apps Script en js/config.js."
-    );
+  if (!window.FERIA_API_URL || window.FERIA_API_URL.includes("PEGA_AQUI")) {
+    throw new Error("Configura la URL de Apps Script en js/config.js.");
   }
 
   const response = await fetch(window.FERIA_API_URL, {
@@ -26,14 +21,27 @@ async function call(accion, extra = {}) {
     })
   });
 
-  return response.json();
+  if (!response.ok) {
+    throw new Error(`Error de conexión (${response.status}). Intenta nuevamente.`);
+  }
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("El servidor devolvió una respuesta no válida. Verifica Apps Script.");
+  }
+
+  return data;
 }
 
-// Inicio de sesión
+// INICIO DE SESIÓN
 $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
 
-  $("loginMessage").textContent = "Verificando…";
+  const message = $("loginMessage");
+  message.textContent = "Verificando…";
 
   try {
     const data = await call("login", {
@@ -42,55 +50,67 @@ $("loginForm").addEventListener("submit", async event => {
     });
 
     if (!data.ok) {
-      throw new Error(data.error);
+      throw new Error(data.error || "No fue posible iniciar sesión.");
     }
 
     token = data.token;
-    role = data.rol;
+    role = String(data.rol || "").toLowerCase();
 
     $("loginPanel").classList.add("hidden");
     $("dashboard").classList.remove("hidden");
 
     $("sessionLabel").textContent =
-      `Sesión: ${data.nombre} · Rol: ${role}`;
+      `Sesión: ${data.nombre || $("loginEmail").value.trim()} · Rol: ${data.rol || "usuario"}`;
 
-    $("usersPanel").classList.toggle(
-      "hidden",
-      role !== "administrador"
-    );
+    const isAdmin =
+      role === "administrador" ||
+      role === "admin";
 
-    $("massPanel").classList.toggle(
-      "hidden",
-      role !== "administrador"
-    );
+    $("usersPanel").classList.toggle("hidden", !isAdmin);
+    $("massPanel").classList.toggle("hidden", !isAdmin);
 
     await refresh();
 
   } catch (error) {
-    $("loginMessage").textContent = error.message;
+    message.textContent =
+      error.message || "Ocurrió un error al iniciar sesión.";
   }
 });
 
-// Cerrar sesión
-$("logoutBtn").onclick = () => {
+// CERRAR SESIÓN
+$("logoutBtn").addEventListener("click", () => {
   token = "";
+  role = "";
+  selected = null;
+
   $("dashboard").classList.add("hidden");
   $("loginPanel").classList.remove("hidden");
+
   $("loginPassword").value = "";
-};
+  $("loginMessage").textContent = "";
+  $("projectDetail").innerHTML = "";
+  $("stats").innerHTML = "";
+  $("projectsBody").innerHTML = "";
+});
 
-// Actualizar tabla
-$("refreshBtn").onclick = refresh;
+$("refreshBtn").addEventListener("click", refresh);
 
+// ACTUALIZAR PROYECTOS
 async function refresh() {
+  const button = $("refreshBtn");
+
+  button.disabled = true;
+
   try {
     const data = await call("listar");
 
     if (!data.ok) {
-      throw new Error(data.error);
+      throw new Error(data.error || "No se pudieron cargar los proyectos.");
     }
 
-    const rows = data.proyectos || [];
+    const rows = Array.isArray(data.proyectos)
+      ? data.proyectos
+      : [];
 
     const stats = [
       ["Total", rows.length],
@@ -106,40 +126,53 @@ async function refresh() {
       </div>
     `).join("");
 
-    $("projectsBody").innerHTML = rows.map(project => `
-      <tr>
-        <td><b>${esc(project.codigo)}</b></td>
-        <td>${esc(project.area)}</td>
-        <td>${esc(project.titulo)}</td>
-        <td>${esc(project.lider)}</td>
-        <td><span class="status">${esc(project.estado)}</span></td>
-        <td>
-          <button class="table-link" data-code="${esc(project.codigo)}">
-            Abrir
-          </button>
-        </td>
-      </tr>
-    `).join("");
+    $("projectsBody").innerHTML = rows.length
+      ? rows.map(project => `
+        <tr>
+          <td><b>${esc(project.codigo)}</b></td>
+          <td>${esc(project.area)}</td>
+          <td>${esc(project.titulo)}</td>
+          <td>${esc(project.lider)}</td>
+          <td><span class="status">${esc(project.estado)}</span></td>
+          <td>
+            <button
+              type="button"
+              class="table-link"
+              data-code="${esc(project.codigo)}">
+              Abrir
+            </button>
+          </td>
+        </tr>
+      `).join("")
+      : '<tr><td colspan="6">Todavía no hay proyectos registrados.</td></tr>';
 
     document.querySelectorAll("[data-code]").forEach(button => {
-      button.onclick = () => {
-        showDetail(
-          rows.find(project => project.codigo === button.dataset.code)
+      button.addEventListener("click", () => {
+        const project = rows.find(
+          item => String(item.codigo) === button.dataset.code
         );
-      };
+
+        if (project) {
+          showDetail(project);
+        }
+      });
     });
 
   } catch (error) {
-    alert(error.message);
+    alert(error.message || "No se pudieron actualizar los datos.");
+
+  } finally {
+    button.disabled = false;
   }
 }
 
-// Mostrar información del proyecto
+// DETALLE DEL PROYECTO
 function showDetail(project) {
   selected = project;
 
   $("projectDetail").innerHTML = `
     <div class="detail-grid">
+
       ${[
         ["Código", project.codigo],
         ["Área", project.area],
@@ -147,7 +180,7 @@ function showDetail(project) {
         ["Tipo", project.tipo],
         ["Líder", project.lider],
         ["Correo", project.correo],
-        ["Grado / salón", project.grado + " · " + project.salon],
+        ["Grado / salón", `${project.grado || ""} · ${project.salon || ""}`],
         ["Asesor", project.asesor]
       ].map(([label, value]) => `
         <div>
@@ -160,7 +193,10 @@ function showDetail(project) {
         <b>Archivo</b>
         ${
           project.archivoUrl
-            ? `<a target="_blank" rel="noopener" href="${esc(project.archivoUrl)}">Abrir anteproyecto</a>`
+            ? `<a target="_blank" rel="noopener noreferrer"
+                 href="${safeUrl(project.archivoUrl)}">
+                 Abrir anteproyecto
+               </a>`
             : "No disponible"
         }
       </div>
@@ -169,38 +205,55 @@ function showDetail(project) {
         <b>Resumen</b>
         ${esc(project.resumen)}
       </div>
+
     </div>
 
     <div class="admin-actions">
-      <select id="newStatus">
-        <option>Recibido</option>
-        <option>En revisión</option>
-        <option>Aprobado</option>
-        <option>Rechazado</option>
-      </select>
 
-      <textarea id="obs" rows="2" placeholder="Observaciones para el equipo">${esc(project.observaciones || "")}</textarea>
+      <label>Estado
+        <select id="newStatus">
+          <option>Recibido</option>
+          <option>En revisión</option>
+          <option>Aprobado</option>
+          <option>Rechazado</option>
+        </select>
+      </label>
+
+      <label>Observaciones
+        <textarea id="obs" rows="2"
+          placeholder="Observaciones para el equipo">${esc(project.observaciones || "")}</textarea>
+      </label>
 
       <label class="check">
         <input type="checkbox" id="notify" checked>
         <span>Notificar al líder por correo si cambia el estado u observaciones</span>
       </label>
 
-      <button class="button primary" id="saveStatus">
+      <button class="button primary" id="saveStatus" type="button">
         Guardar evaluación
       </button>
+
     </div>
 
-    <div id="saveMessage" class="message"></div>
+    <div id="saveMessage" class="message"
+      role="status" aria-live="polite"></div>
   `;
 
-  $("newStatus").value = project.estado;
+  $("newStatus").value = project.estado || "Recibido";
 
-  $("saveStatus").onclick = saveStatus;
+  $("saveStatus").addEventListener("click", saveStatus);
 }
 
-// Guardar evaluación
+// GUARDAR EVALUACIÓN
 async function saveStatus() {
+  if (!selected) return;
+
+  const button = $("saveStatus");
+  const message = $("saveMessage");
+
+  button.disabled = true;
+  message.textContent = "Guardando…";
+
   try {
     const data = await call("actualizar", {
       codigo: selected.codigo,
@@ -210,49 +263,64 @@ async function saveStatus() {
     });
 
     if (!data.ok) {
-      throw new Error(data.error);
+      throw new Error(data.error || "No se pudo guardar la evaluación.");
     }
 
-    $("saveMessage").textContent = data.notificado
+    message.textContent = data.notificado
       ? "Actualización guardada y correo enviado al líder."
       : "Actualización guardada.";
 
     await refresh();
 
   } catch (error) {
-    $("saveMessage").textContent = error.message;
+    message.textContent =
+      error.message || "Ocurrió un error al guardar.";
+
+  } finally {
+    button.disabled = false;
   }
 }
 
-// Crear nuevas cuentas
+// CREAR USUARIOS
 $("userForm").addEventListener("submit", async event => {
   event.preventDefault();
 
+  const message = $("userMessage");
+  const button = event.submitter;
+
+  if (button) button.disabled = true;
+
+  message.textContent = "Creando cuenta…";
+
   try {
     const data = await call("crearUsuario", {
-      nombre: $("newName").value,
-      correo: $("newEmail").value,
+      nombre: $("newName").value.trim(),
+      correo: $("newEmail").value.trim(),
       rol: $("newRole").value,
       contrasena: $("newPassword").value
     });
 
     if (!data.ok) {
-      throw new Error(data.error);
+      throw new Error(data.error || "No se pudo crear la cuenta.");
     }
 
-    $("userMessage").textContent =
-      "Cuenta creada correctamente.";
+    message.textContent = "Cuenta creada correctamente.";
 
     event.target.reset();
 
   } catch (error) {
-    $("userMessage").textContent = error.message;
+    message.textContent =
+      error.message || "Ocurrió un error al crear la cuenta.";
+
+  } finally {
+    if (button) button.disabled = false;
   }
 });
 
-// Comunicado masivo
+// COMUNICADOS MASIVOS
 async function sendMass(prueba) {
   const msg = $("massMessage");
+
   const asunto = $("massAsunto").value.trim();
   const mensaje = $("massMensaje").value.trim();
 
@@ -261,13 +329,21 @@ async function sendMass(prueba) {
     return;
   }
 
-  if (!prueba && !confirm("¿Enviar este comunicado a todos los equipos del filtro seleccionado? No se puede deshacer.")) {
+  if (
+    !prueba &&
+    !confirm(
+      "¿Enviar este comunicado a todos los equipos del filtro seleccionado? No se puede deshacer."
+    )
+  ) {
     return;
   }
 
   $("massTest").disabled = true;
   $("massSend").disabled = true;
-  msg.textContent = prueba ? "Enviando prueba…" : "Enviando comunicado…";
+
+  msg.textContent = prueba
+    ? "Enviando prueba…"
+    : "Enviando comunicado…";
 
   try {
     const data = await call("enviarMasivo", {
@@ -279,16 +355,20 @@ async function sendMass(prueba) {
     });
 
     if (!data.ok) {
-      throw new Error(data.error);
+      throw new Error(data.error || "No se pudo enviar el comunicado.");
     }
 
     msg.textContent = prueba
       ? "Prueba enviada a tu correo."
-      : `Comunicado enviado a ${data.enviados} equipo(s)` +
-        (data.fallidos ? ` · ${data.fallidos} fallido(s)` : ".");
+      : `Comunicado enviado a ${data.enviados || 0} equipo(s)` +
+        (data.fallidos
+          ? ` · ${data.fallidos} fallido(s).`
+          : ".");
 
   } catch (error) {
-    msg.textContent = error.message;
+    msg.textContent =
+      error.message || "Ocurrió un error al enviar.";
+
   } finally {
     $("massTest").disabled = false;
     $("massSend").disabled = false;
@@ -300,9 +380,11 @@ $("massForm").addEventListener("submit", event => {
   sendMass(false);
 });
 
-$("massTest").onclick = () => sendMass(true);
+$("massTest").addEventListener("click", () => {
+  sendMass(true);
+});
 
-// Evitar insertar texto recibido como HTML
+// SEGURIDAD HTML
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => ({
     "&": "&amp;",
@@ -310,5 +392,22 @@ function esc(value) {
     ">": "&gt;",
     '"': "&quot;",
     "'": "&#39;"
-  }[character]));
+  })[character]);
+}
+
+// VALIDACIÓN DE ENLACES
+function safeUrl(value) {
+  try {
+    const url = new URL(
+      String(value),
+      window.location.href
+    );
+
+    return ["http:", "https:"].includes(url.protocol)
+      ? esc(url.href)
+      : "#";
+
+  } catch {
+    return "#";
+  }
 }
