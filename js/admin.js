@@ -109,8 +109,8 @@ async function refresh() {
     const stats = [
       ["Total", rows.length],
       ["Recibidos", rows.filter(x => x.estado === "Recibido").length],
-      ["Aprobados", rows.filter(x => x.estado === "Aprobado").length],
-      ["Rechazados", rows.filter(x => x.estado === "Rechazado").length]
+      ["Seleccionados", rows.filter(x => x.estado === "Seleccionado").length],
+      ["No Seleccionados", rows.filter(x => x.estado === "No Seleccionado").length]
     ];
 
     $("stats").innerHTML = stats.map(([label, value]) => `
@@ -189,8 +189,8 @@ function showDetail(project) {
         <select id="newStatus">
           <option>Recibido</option>
           <option>En revisión</option>
-          <option>Aprobado</option>
-          <option>Rechazado</option>
+          <option>Seleccionado</option>
+          <option>No Seleccionado</option>
         </select>
       </label>
 
