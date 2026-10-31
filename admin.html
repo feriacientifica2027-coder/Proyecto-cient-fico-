@@ -98,6 +98,86 @@
       <div id="projectDetail"></div>
     </section>
 
+    <section class="panel hidden" id="siteEditorPanel">
+      <div class="toolbar">
+        <div>
+          <p class="eyebrow">Editor visual</p>
+          <h3>Editar sitio web</h3>
+        </div>
+        <button type="button" class="button secondary" id="reloadContentBtn">
+          Recargar contenido
+        </button>
+      </div>
+
+      <p class="muted">
+        Modifica los textos, colores, imágenes y datos visibles en la página de inscripción. Los cambios se guardan en Google Sheets y se muestran al público al recargar la página.
+      </p>
+
+      <form id="siteEditorForm" class="form-grid">
+        <label>Título del evento
+          <input id="siteTitulo" maxlength="120" required>
+        </label>
+
+        <label>Institución
+          <input id="siteInstitucion" maxlength="160" required>
+        </label>
+
+        <label class="full">Subtítulo principal
+          <input id="siteSubtitulo" maxlength="200">
+        </label>
+
+        <label class="full">Descripción
+          <textarea id="siteDescripcion" rows="3" maxlength="1200"></textarea>
+        </label>
+
+        <label>Fecha de cierre
+          <input id="siteFecha" type="date">
+        </label>
+
+        <label>Correo de contacto
+          <input id="siteCorreo" type="email">
+        </label>
+
+        <label>Color principal
+          <input id="siteColor1" type="color">
+        </label>
+
+        <label>Color secundario
+          <input id="siteColor2" type="color">
+        </label>
+
+        <label class="full">Aviso o anuncio
+          <textarea id="siteAviso" rows="3" maxlength="1000"></textarea>
+        </label>
+
+        <label class="full">URL pública del logotipo
+          <input id="siteLogo" type="url" placeholder="https://...">
+        </label>
+
+        <label class="full">URL pública de imagen de portada
+          <input id="siteCover" type="url" placeholder="https://...">
+        </label>
+
+        <div class="full site-preview">
+          <h4>Vista previa</h4>
+          <div id="sitePreview" class="site-preview-card">
+            <strong id="previewTitulo">Feria Científica 2027</strong>
+            <p id="previewInstitucion">Instituto Benigno Jiménez Garay</p>
+            <p id="previewSubtitulo">Inscripción de proyectos científicos</p>
+            <p id="previewDescripcion"></p>
+            <p id="previewAviso"></p>
+          </div>
+        </div>
+
+        <div class="full admin-actions">
+          <div id="siteEditorMessage" class="message" role="status" aria-live="polite"></div>
+          <button class="button primary" id="saveSiteContentBtn" type="submit">
+            Guardar y publicar cambios
+          </button>
+        </div>
+      </form>
+    </section>
+
     <section class="panel hidden" id="massPanel">
       <h3>Comunicado masivo</h3>
       <p class="muted">
@@ -172,13 +252,7 @@
         </label>
 
         <label>Contraseña temporal
-          <input
-            id="newPassword"
-            type="password"
-            minlength="12"
-            required
-            autocomplete="new-password"
-          >
+          <input id="newPassword" type="password" minlength="12" required autocomplete="new-password">
         </label>
 
         <div class="full">
