@@ -724,3 +724,87 @@ textarea:focus-visible {
 @media (max-width: 360px) {
   .stats-grid { grid-template-columns: 1fr; }
 }
+/* Ventana emergente de convocatoria */
+.convocatoria-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(10, 20, 35, 0.88);
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.convocatoria-modal.activa {
+    display: flex;
+}
+
+.convocatoria-contenido {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: 92vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.convocatoria-contenido img {
+    display: block;
+    width: 100%;
+    max-height: 88vh;
+    object-fit: contain;
+    border-radius: 12px;
+    background: white;
+}
+
+.convocatoria-cerrar {
+    position: absolute;
+    top: -12px;
+    right: -10px;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: #a51f35;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(0,0,0,.3);
+}
+
+.boton-ver-convocatoria {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1000;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 25px;
+    background: #17375e;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(0,0,0,.2);
+}
+
+.boton-ver-convocatoria:hover {
+    background: #a51f35;
+}
+
+/* Evita que el cartel siga apareciendo como fondo */
+.intro {
+    background-image: none !important;
+}
+
+@media (max-width: 600px) {
+    .convocatoria-contenido {
+        max-width: 100%;
+    }
+
+    .convocatoria-cerrar {
+        right: 0;
+    }
+}
