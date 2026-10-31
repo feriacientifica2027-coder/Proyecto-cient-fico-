@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,8 +13,8 @@
   <div class="container header-inner">
     <div class="brand-mark">FC<span>27</span></div>
     <div>
-      <p class="eyebrow">Instituto Benigno Jiménez Garay</p>
-      <h1>Feria Científica 2027</h1>
+      <p class="eyebrow" data-site="institucion">Instituto Benigno Jiménez Garay</p>
+      <h1 data-site="titulo">Feria Científica 2027</h1>
     </div>
     <nav>
       <a href="consulta.html">Consultar proyecto</a>
@@ -25,11 +26,11 @@
 <main class="container main-layout">
   <section class="intro">
     <p class="eyebrow">Convocatoria estudiantil</p>
-    <h2>Inscripción de proyectos científicos</h2>
-    <p>Completa la información del equipo y adjunta el anteproyecto. Los campos marcados con * son obligatorios.</p>
+    <h2 data-site="subtitulo">Inscripción de proyectos científicos</h2>
+    <p data-site="descripcion">Completa la información del equipo y adjunta el anteproyecto. Los campos marcados con * son obligatorios.</p>
     <div class="notice">
-      <strong>Fecha de cierre:</strong> 20 de abril de 2027.
-      <span>El código se asignará automáticamente según el área temática.</span>
+      <strong>Fecha de cierre:</strong> <span data-site="fecha">20 de abril de 2027</span>.
+      <span data-site="aviso">El código se asignará automáticamente según el área temática.</span>
     </div>
   </section>
 
@@ -158,12 +159,7 @@
     </div>
 
     <label class="upload full">Archivo del anteproyecto *
-      <input
-        type="file"
-        id="archivo"
-        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        required
-      >
+      <input type="file" id="archivo" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
       <small>Formatos permitidos: PDF, DOC o DOCX. Máximo 20 MB.</small>
     </label>
 
@@ -190,5 +186,6 @@
 
 <script src="js/config.js"></script>
 <script src="js/registro.js"></script>
+<script src="js/publico.js"></script>
 </body>
 </html>
