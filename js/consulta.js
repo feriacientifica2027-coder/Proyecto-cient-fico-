@@ -1,11 +1,29 @@
-
 document.getElementById("consultaForm").addEventListener("submit", async event => {
   event.preventDefault();
 
   const output = document.getElementById("consultaResult");
   const codigo = document.getElementById("codigo").value.trim().toUpperCase();
+  const correo = document.getElementById("correo").value.trim().toLowerCase();
+  const button = event.submitter;
 
-  output.textContent = "Consultando…";
+  // Validar los campos
+  if (!codigo || !correo) {
+    output.textContent = "Completa el código y el correo electrónico.";
+    return;
+  }
+
+  // Validar formato del código
+  if (!/^[A-Z]{2,3}-\d{4}$/.test(codigo)) {
+    output.textContent = "El código debe tener el formato BIO-0001.";
+    return;
+  }
+
+  output.textContent = "Consultando proyecto...";
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Consultando...";
+  }
 
   try {
     if (
@@ -22,30 +40,59 @@ document.getElementById("consultaForm").addEventListener("submit", async event =
       },
       body: JSON.stringify({
         accion: "consultar",
-        codigo: codigo
+        codigo: codigo,
+        correo: correo
       })
     });
+
+    if (!response.ok) {
+      throw new Error("No se pudo conectar con el servidor. Intenta nuevamente.");
+    }
 
     const data = await response.json();
 
     if (!data.ok) {
-      throw new Error(data.error || "No se encontró el proyecto.");
+      throw new Error(
+        data.error || "No se encontró el proyecto."
+      );
     }
+
+    const proyecto = data.proyecto;
 
     output.innerHTML = `
       <div class="result-card">
-        <strong>${escapeHtml(data.proyecto.codigo)}</strong>
-        <p><b>${escapeHtml(data.proyecto.titulo)}</b></p>
-        <p>Área: ${escapeHtml(data.proyecto.area)}</p>
-        <p>Estado: <b>${escapeHtml(data.proyecto.estado)}</b></p>
+        <strong>${escapeHtml(proyecto.codigo)}</strong>
+
+        <p>
+          <b>${escapeHtml(proyecto.titulo)}</b>
+        </p>
+
+        <p>
+          Área: ${escapeHtml(proyecto.area)}
+        </p>
+
+        <p>
+          Estado:
+          <b>${escapeHtml(proyecto.estado)}</b>
+        </p>
+
         <p class="muted">
-          ${escapeHtml(data.proyecto.observaciones || "Sin observaciones registradas.")}
+          ${escapeHtml(
+            proyecto.observaciones ||
+            "Sin observaciones registradas."
+          )}
         </p>
       </div>
     `;
 
   } catch (error) {
     output.textContent = error.message;
+
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Consultar";
+    }
   }
 });
 
