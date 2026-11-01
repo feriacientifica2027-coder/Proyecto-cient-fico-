@@ -110,7 +110,7 @@ async function refresh() {
       ["Total", rows.length],
       ["Recibidos", rows.filter(x => x.estado === "Recibido").length],
       ["Seleccionados", rows.filter(x => x.estado === "Seleccionado").length],
-      ["No Seleccionados", rows.filter(x => x.estado === "No Seleccionado").length]
+      ["No seleccionados", rows.filter(x => x.estado === "No seleccionado").length]
     ];
 
     $("stats").innerHTML = stats.map(([label, value]) => `
