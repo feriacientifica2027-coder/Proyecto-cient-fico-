@@ -1,1 +1,1 @@
-window.FERIA_API_URL = "https://script.google.com/macros/s/AKfycbwpItD0Fq4xnlLgfV11-484y7hFVXQ-5RXt59ZCZmVa21XsOtFNH5n0yv-bMfG5rF_Y/exec" ; 
+window.FERIA_API_URL = "https://script.google.com/macros/s/AKfycbwNdYDHivhr_B-QbzcaUf9V3pQBqJnYAXLHCTgpNVC_i-gf1wzOiCzJXwd32y0JbwHl/exec"; 
