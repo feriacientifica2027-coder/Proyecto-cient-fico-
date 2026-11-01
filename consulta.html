@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -24,32 +23,73 @@
 </header>
 
 <main class="container narrow">
+
   <section class="intro">
     <p class="eyebrow">Seguimiento</p>
     <h2>Consulta el estado de tu proyecto</h2>
-    <p>Introduce el código que recibiste al completar la inscripción.</p>
+    <p>
+      Introduce el código y el correo electrónico
+      que utilizaste al completar la inscripción.
+    </p>
   </section>
 
   <section class="panel">
+
     <form id="consultaForm">
-      <label>Código del proyecto
-        <input id="codigo" required placeholder="Ej. BIO-0001" maxlength="20">
+
+      <label for="codigo">
+        Código del proyecto
+        <input
+          type="text"
+          id="codigo"
+          name="codigo"
+          required
+          placeholder="Ej. BIO-0001"
+          maxlength="20"
+          autocomplete="off"
+          pattern="[A-Za-z]{2,3}-[0-9]{4}"
+          title="Introduce un código con el formato BIO-0001"
+        >
+      </label>
+
+      <label for="correo">
+        Correo electrónico de inscripción
+        <input
+          type="email"
+          id="correo"
+          name="correo"
+          required
+          placeholder="Ej. equipo@correo.com"
+          maxlength="160"
+          autocomplete="email"
+        >
       </label>
 
       <button class="button primary full" type="submit">
         Consultar
       </button>
+
     </form>
 
-    <div id="consultaResult" class="result-box" aria-live="polite"></div>
+    <div
+      id="consultaResult"
+      class="result-box"
+      aria-live="polite"
+      role="status">
+    </div>
+
   </section>
+
 </main>
 
 <footer>
-  <div class="container">Feria Científica 2027</div>
+  <div class="container">
+    Feria Científica 2027
+  </div>
 </footer>
 
 <script src="js/config.js"></script>
 <script src="js/consulta.js"></script>
+
 </body>
 </html>
