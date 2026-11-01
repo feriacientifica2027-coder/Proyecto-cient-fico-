@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{asunto}}</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f5f8">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f5f8">
+<tr><td align="center" style="padding:24px 12px">
+
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e0e5eb">
+
+    <!-- MEMBRETE (diseño general: edítalo aquí) -->
+    <tr><td style="border-top:5px solid #17365d;padding:22px 32px;border-bottom:1px solid #e0e5eb">
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+        <td width="54" style="vertical-align:middle">
+          <div style="width:52px;height:52px;background:#17365d;border-radius:10px;text-align:center;font:700 19px/52px Georgia,serif;color:#ffffff">FC<span style="color:#ff9ea6">27</span></div>
+        </td>
+        <td style="padding-left:14px;vertical-align:middle">
+          <div style="font:700 11px Arial,sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#b32632">{{institucion}}</div>
+          <div style="font:700 21px Georgia,serif;color:#17365d;padding-top:3px">{{evento}}</div>
+        </td>
+      </tr></table>
+    </td></tr>
+
+    <!-- CONTENIDO (viene de inscripcion.html, seleccionado.html, etc.) -->
+    <tr><td style="padding:28px 32px;font:400 15px/1.65 Arial,sans-serif;color:#253449">
+      {{contenido}}
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0 0"><tr>
+        <td style="background:#17365d;border-radius:8px">
+          <a href="{{sitio}}" style="display:inline-block;padding:13px 26px;font:700 15px Arial,sans-serif;color:#ffffff;text-decoration:none">Consultar mi proyecto</a>
+        </td>
+      </tr></table>
+    </td></tr>
+
+    <!-- PIE -->
+    <tr><td style="background:#eaf0f6;padding:18px 32px;font:400 12px/1.6 Arial,sans-serif;color:#788596">
+      <b style="color:#17365d">{{evento}}</b> · {{institucion}}<br>
+      Para cualquier duda, responde a este correo o escribe a
+      <a href="mailto:{{contacto}}" style="color:#17365d">{{contacto}}</a>.
+    </td></tr>
+  </table>
+
+</td></tr></table>
+</body>
+</html>
