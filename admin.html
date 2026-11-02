@@ -1,272 +1,111 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Panel administrativo | Feria Científica 2027</title>
-  <link rel="stylesheet" href="css/estilos.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administración | Feria Científica</title>
+<link rel="stylesheet" href="css/estilos.css">
+<link rel="stylesheet" href="css/admin-panel.css">
 </head>
-<body>
-
-<header class="site-header">
-  <div class="container header-inner">
-    <div class="brand-mark">FC<span>27</span></div>
-    <div>
-      <p class="eyebrow">Acceso restringido</p>
-      <h1>Panel administrativo</h1>
-    </div>
-    <nav>
-      <a href="index.html">Inscripción</a>
-      <a href="consulta.html">Consulta</a>
-    </nav>
-  </div>
+<body class="admin-body">
+<header class="admin-topbar">
+  <a class="admin-brand" href="index.html"><span class="brand-mark">FC</span><span><b>Feria Científica</b><small>Administración institucional</small></span></a>
+  <div class="top-actions"><span id="sessionLabel">Acceso restringido</span><button id="logoutBtn" class="button secondary hidden">Cerrar sesión</button></div>
 </header>
-
-<main class="container admin-layout">
-
-  <section id="loginPanel" class="panel narrow-panel">
-    <p class="eyebrow">Organización</p>
-    <h2>Iniciar sesión</h2>
-
+<main class="admin-main">
+  <section id="loginPanel" class="panel login-card">
+    <p class="eyebrow">Acceso seguro</p><h1>Panel administrativo</h1>
     <form id="loginForm">
-      <label>Correo autorizado
-        <input id="loginEmail" type="email" required autocomplete="username">
-      </label>
-
-      <label>Contraseña
-        <input id="loginPassword" type="password" required autocomplete="current-password">
-      </label>
-
-      <div id="loginMessage" class="message" role="status"></div>
-
-      <button class="button primary full" type="submit">
-        Entrar
-      </button>
+      <label>Correo autorizado<input id="loginEmail" type="email" required autocomplete="username"></label>
+      <label>Contraseña<input id="loginPassword" type="password" required autocomplete="current-password"></label>
+      <p id="loginMessage" class="message" role="status"></p>
+      <button class="button primary full" type="submit">Iniciar sesión</button>
     </form>
-
-    <p class="fine-print">
-      El acceso se verifica en Google Apps Script.
-    </p>
   </section>
 
-  <section id="dashboard" class="hidden">
+  <div id="dashboard" class="admin-shell hidden">
+    <aside class="admin-sidebar">
+      <div class="edition-picker"><label for="editionSelect">Edición activa</label><select id="editionSelect"></select></div>
+      <p class="nav-caption">GESTIÓN</p>
+      <button class="nav-item active" data-view="overview">▦ <span>Resumen</span></button>
+      <button class="nav-item" data-view="projects">▤ <span>Proyectos</span></button>
+      <button class="nav-item admin-only" data-view="editions">◷ <span>Ediciones</span></button>
+      <p class="nav-caption">OPERACIONES</p>
+      <button class="nav-item admin-only" data-view="gallery">▧ <span>Galería fotográfica</span></button>
+      <button class="nav-item admin-only" data-view="photoStats">▥ <span>Estadísticas de fotografías</span></button>
+      <button class="nav-item admin-only" data-view="inventory">⌑ <span>Inventario de laboratorio</span></button>
+      <button class="nav-item admin-only" data-view="calendar">▦ <span>Calendario</span></button>
+      <button class="nav-item admin-only" data-view="requests">↗ <span>Solicitudes</span></button>
+      <button class="nav-item admin-only" data-view="documents">▣ <span>Expedientes y documentos</span></button>
+      <button class="nav-item admin-only" data-view="credentials">▤ <span>Acreditaciones QR</span></button>
+      <button class="nav-item admin-only" data-view="surveys">☷ <span>Encuestas</span></button>
+      <button class="nav-item admin-only" data-view="partners">♧ <span>Colaboradores</span></button>
+      <p class="nav-caption">SISTEMA</p>
+      <button class="nav-item admin-only" data-view="users">♙ <span>Usuarios y permisos</span></button>
+      <button class="nav-item admin-only" data-view="content">⚙ <span>Contenido público</span></button>
+      <a class="nav-item nav-link" href="index.html">↗ <span>Ver portal público</span></a>
+    </aside>
 
-    <div class="dashboard-head">
-      <div>
-        <p class="eyebrow">Área de organización</p>
-        <h2>Gestión de inscripciones</h2>
-        <p id="sessionLabel" class="muted"></p>
-      </div>
+    <section class="admin-content">
+      <div class="content-heading"><div><p class="eyebrow">INSTITUTO BENIGNO JIMÉNEZ GARAY</p><h1 id="viewTitle">Resumen general</h1><p id="viewSubtitle">Indicadores de la edición seleccionada.</p></div><button id="refreshBtn" class="button secondary">Actualizar datos</button></div>
 
-      <button id="logoutBtn" class="button secondary">
-        Cerrar sesión
-      </button>
-    </div>
+      <section class="view-panel" id="view-overview">
+        <div id="overviewStats" class="metric-grid"></div>
+        <div class="panel"><h2>Distribución de proyectos por área</h2><div id="areaStats" class="bar-list"></div></div>
+        <div class="panel"><h2>Distribución por grado</h2><div id="gradeStats" class="bar-list"></div></div>
+      </section>
 
-    <div id="stats" class="stats-grid"></div>
+      <section class="view-panel hidden" id="view-projects">
+        <div class="panel"><div class="panel-heading"><div><h2>Proyectos registrados</h2><p>Inscripciones correspondientes a la edición activa.</p></div></div>
+        <div class="table-scroll"><table><thead><tr><th>Código</th><th>Área</th><th>Proyecto</th><th>Líder</th><th>Grado</th><th>Estado</th></tr></thead><tbody id="projectsBody"></tbody></table></div></div>
+      </section>
 
-    <section class="panel">
-      <div class="toolbar">
-        <h3>Proyectos registrados</h3>
-        <button id="refreshBtn" class="button secondary">
-          Actualizar
-        </button>
-      </div>
+      <section class="view-panel hidden" id="view-editions">
+        <div class="panel"><h2>Administrar ediciones</h2><form id="editionForm" class="form-grid">
+          <label>Año<input id="edYear" type="number" min="2027" max="2100" required></label>
+          <label>Nombre<input id="edName" required></label>
+          <label>Estado<select id="edStatus"><option>Configuración</option><option>Abierta</option><option>Activa</option><option>Cerrada</option><option>Archivada</option></select></label>
+          <label>Fecha de cierre<input id="edClose" type="date"></label>
+          <label class="wide">Descripción<textarea id="edDescription" rows="2"></textarea></label>
+          <button class="button primary" type="submit">Guardar edición</button><p id="editionMessage" class="message"></p>
+        </form><div id="editionsList" class="simple-list"></div></div>
+      </section>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Área</th>
-              <th>Proyecto</th>
-              <th>Líder</th>
-              <th>Estado</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="projectsBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel" id="detailPanel">
-      <h3>Detalle y evaluación</h3>
-      <p class="muted">
-        Selecciona un proyecto de la tabla para ver sus datos y actualizar su estado.
-      </p>
-      <div id="projectDetail"></div>
-    </section>
-
-    <section class="panel hidden" id="siteEditorPanel">
-      <div class="toolbar">
-        <div>
-          <p class="eyebrow">Editor visual</p>
-          <h3>Editar sitio web</h3>
+      <section class="view-panel hidden" id="view-gallery">
+        <div class="panel"><h2>Galería fotográfica</h2><p class="muted">La publicación exige autorización registrada. Las fotografías no se muestran aquí al público hasta que administración las publique.</p>
+          <form id="photoForm" class="form-grid">
+            <label>Título<input id="photoTitle" required maxlength="160"></label>
+            <label>URL de imagen<input id="photoUrl" type="url" required placeholder="https://..."></label>
+            <label class="wide">Descripción<textarea id="photoDescription" rows="2"></textarea></label>
+            <label>URL de miniatura<input id="photoThumb" type="url" placeholder="https://..."></label>
+            <label class="checkline"><input id="photoConsent" type="checkbox" required> Confirmo que existe autorización para publicar esta fotografía.</label>
+            <label class="checkline"><input id="photoPublish" type="checkbox"> Publicar en la galería pública.</label>
+            <button class="button primary" type="submit">Registrar fotografía</button><p id="photoMessage" class="message"></p>
+          </form><div id="photoList" class="photo-grid"></div>
         </div>
-        <button type="button" class="button secondary" id="reloadContentBtn">
-          Recargar contenido
-        </button>
-      </div>
+      </section>
 
-      <p class="muted">
-        Modifica los textos, colores, imágenes y datos visibles en la página de inscripción. Los cambios se guardan en Google Sheets y se muestran al público al recargar la página.
-      </p>
+      <section class="view-panel hidden" id="view-photoStats">
+        <div id="photoMetricCards" class="metric-grid"></div>
+        <div class="panel"><h2>Fotografías más visualizadas</h2><div class="table-scroll"><table><thead><tr><th>Fotografía</th><th>Visualizaciones</th><th>Descargas</th></tr></thead><tbody id="photoRanking"></tbody></table></div></div>
+        <div class="panel"><h2>Visualizaciones por día</h2><div id="photoDaily" class="bar-list"></div></div>
+        <p class="privacy-note">Información administrativa: estas estadísticas no se exponen en el portal público.</p>
+      </section>
 
-      <form id="siteEditorForm" class="form-grid">
-        <label>Título del evento
-          <input id="siteTitulo" maxlength="120" required>
-        </label>
+      <section class="view-panel hidden" id="view-inventory"><div class="panel"><h2>Inventario de laboratorio</h2><form id="inventoryForm" class="form-grid">
+        <label>Material o equipo<input id="invName" required></label><label>Categoría<input id="invCategory"></label><label>Cantidad total<input id="invTotal" type="number" min="0" required></label><label>Disponible<input id="invAvailable" type="number" min="0" required></label><label>Ubicación<input id="invLocation"></label><label>Estado<select id="invState"><option>Disponible</option><option>En préstamo</option><option>Mantenimiento</option><option>Fuera de servicio</option></select></label><label class="wide">Descripción<textarea id="invDescription"></textarea></label><button class="button primary" type="submit">Agregar al inventario</button><p id="inventoryMessage" class="message"></p></form><div id="inventoryList" class="simple-list"></div></div></section>
 
-        <label>Institución
-          <input id="siteInstitucion" maxlength="160" required>
-        </label>
+      <section class="view-panel hidden" id="view-calendar"><div class="panel"><h2>Calendario de la edición</h2><p>Fechas límite, reuniones, evaluaciones y actividades institucionales.</p><form id="calendarForm" class="form-grid"><label>Actividad<input id="calTitle" required></label><label>Tipo<input id="calType" placeholder="Inscripción, evaluación, reunión..."></label><label>Fecha de inicio<input id="calStart" type="datetime-local" required></label><label>Fecha final<input id="calEnd" type="datetime-local"></label><label class="wide">Descripción<textarea id="calDescription"></textarea></label><button class="button primary" type="submit">Agregar actividad</button></form><div id="calendarList" class="simple-list"></div></div></section>
 
-        <label class="full">Subtítulo principal
-          <input id="siteSubtitulo" maxlength="200">
-        </label>
-
-        <label class="full">Descripción
-          <textarea id="siteDescripcion" rows="3" maxlength="1200"></textarea>
-        </label>
-
-        <label>Fecha de cierre
-          <input id="siteFecha" type="date">
-        </label>
-
-        <label>Correo de contacto
-          <input id="siteCorreo" type="email">
-        </label>
-
-        <label>Color principal
-          <input id="siteColor1" type="color">
-        </label>
-
-        <label>Color secundario
-          <input id="siteColor2" type="color">
-        </label>
-
-        <label class="full">Aviso o anuncio
-          <textarea id="siteAviso" rows="3" maxlength="1000"></textarea>
-        </label>
-
-        <label class="full">URL pública del logotipo
-          <input id="siteLogo" type="url" placeholder="https://...">
-        </label>
-
-        <label class="full">URL pública de imagen de portada
-          <input id="siteCover" type="url" placeholder="https://...">
-        </label>
-
-        <div class="full site-preview">
-          <h4>Vista previa</h4>
-          <div id="sitePreview" class="site-preview-card">
-            <strong id="previewTitulo">Feria Científica 2027</strong>
-            <p id="previewInstitucion">Instituto Benigno Jiménez Garay</p>
-            <p id="previewSubtitulo">Inscripción de proyectos científicos</p>
-            <p id="previewDescripcion"></p>
-            <p id="previewAviso"></p>
-          </div>
-        </div>
-
-        <div class="full admin-actions">
-          <div id="siteEditorMessage" class="message" role="status" aria-live="polite"></div>
-          <button class="button primary" id="saveSiteContentBtn" type="submit">
-            Guardar y publicar cambios
-          </button>
-        </div>
-      </form>
+      <section class="view-panel hidden" id="view-requests"><div class="panel"><h2>Solicitudes de equipos</h2><div id="requestsList" class="simple-list"></div></div></section>
+      <section class="view-panel hidden" id="view-documents"><div class="panel"><h2>Expedientes y documentos</h2><div id="documentsList" class="simple-list"></div></div></section>
+      <section class="view-panel hidden" id="view-credentials"><div class="panel"><h2>Acreditaciones QR</h2><p>Registro de credenciales por edición. La generación de códigos imprimibles se integrará en la siguiente etapa.</p><div id="credentialsList" class="simple-list"></div></div></section>
+      <section class="view-panel hidden" id="view-surveys"><div class="panel"><h2>Encuestas y respuestas</h2><div id="surveysList" class="simple-list"></div></div></section>
+      <section class="view-panel hidden" id="view-partners"><div class="panel"><h2>Colaboradores institucionales</h2><p>Solo aportes en especie y compromisos no monetarios. No incluye presupuesto ni movimientos de dinero.</p><div id="partnersList" class="simple-list"></div></div></section>
+      <section class="view-panel hidden" id="view-users"><div class="panel"><h2>Usuarios y permisos</h2><form id="userForm" class="form-grid"><label>Nombre<input id="userName" required></label><label>Correo<input id="userEmail" type="email" required></label><label>Rol<select id="userRole"><option>evaluador</option><option>consulta</option><option>administrador</option></select></label><label>Contraseña temporal<input id="userPass" type="password" minlength="12" required></label><label class="wide">Ediciones asignadas<input id="userEditions" placeholder="2027,2028 o * para todas"></label><button class="button primary" type="submit">Crear usuario</button><p id="userMessage" class="message"></p></form></div></section>
+      <section class="view-panel hidden" id="view-content"><div class="panel"><h2>Contenido público</h2><p>La edición seleccionada puede tener textos y avisos independientes. La edición pública se configura en el portal.</p><p class="muted">Editor completo de contenido en la siguiente entrega.</p></div></section>
     </section>
-
-    <section class="panel hidden" id="massPanel">
-      <h3>Comunicado masivo</h3>
-      <p class="muted">
-        Envía un correo con el membrete de la feria a los líderes de los proyectos.
-        Puedes usar los marcadores {{lider}}, {{codigo}}, {{titulo}}, {{area}} y {{estado}}.
-        Disponible únicamente para administradores.
-      </p>
-
-      <form id="massForm" class="form-grid">
-        <label>Área
-          <select id="massArea">
-            <option value="">Todas las áreas</option>
-            <option>Biología</option>
-            <option>Ciencias Ambientales</option>
-            <option>Ciencias de la Computación</option>
-            <option>Ciencias Sociales y del Comportamiento</option>
-            <option>Física y Matemática</option>
-            <option>Ingeniería y Tecnología</option>
-            <option>Química</option>
-            <option>Salud y Medicina</option>
-          </select>
-        </label>
-
-        <label>Estado
-          <select id="massEstado">
-            <option value="">Todos los estados</option>
-            <option>Recibido</option>
-            <option>En revisión</option>
-            <option>Seleccionado</option>
-            <option>No seleccionado</option>
-          </select>
-        </label>
-
-        <label class="full">Asunto
-          <input id="massAsunto" type="text" maxlength="150" required placeholder="Asunto del comunicado">
-        </label>
-
-        <label class="full">Mensaje
-          <textarea id="massMensaje" rows="7" required placeholder="Escribe el comunicado. Puedes personalizarlo con los marcadores indicados arriba."></textarea>
-        </label>
-
-        <div class="full">
-          <div id="massMessage" class="message" role="status" aria-live="polite"></div>
-          <div class="admin-actions">
-            <button id="massTest" class="button secondary" type="button">Enviar prueba</button>
-            <button id="massSend" class="button primary" type="submit">Enviar comunicado</button>
-          </div>
-        </div>
-      </form>
-    </section>
-
-    <section class="panel hidden" id="usersPanel">
-      <h3>Administración de usuarios</h3>
-      <p class="muted">
-        Crea cuentas para las personas autorizadas a utilizar el panel administrativo.
-      </p>
-
-      <form id="userForm" class="form-grid">
-        <label>Nombre completo
-          <input id="newName" type="text" maxlength="120" required>
-        </label>
-
-        <label>Correo electrónico
-          <input id="newEmail" type="email" maxlength="150" required>
-        </label>
-
-        <label>Rol
-          <select id="newRole" required>
-            <option value="evaluador">Evaluador</option>
-            <option value="administrador">Administrador</option>
-          </select>
-        </label>
-
-        <label>Contraseña temporal
-          <input id="newPassword" type="password" minlength="12" required autocomplete="new-password">
-        </label>
-
-        <div class="full">
-          <div id="userMessage" class="message" role="status" aria-live="polite"></div>
-          <button class="button primary" type="submit">Crear usuario</button>
-        </div>
-      </form>
-    </section>
-
-  </section>
+  </div>
 </main>
-
-<script src="js/config.js"></script>
-<script src="js/admin.js"></script>
-
-</body>
-</html>
+<script src="js/config.js"></script><script src="js/admin.js"></script>
+</body></html>
