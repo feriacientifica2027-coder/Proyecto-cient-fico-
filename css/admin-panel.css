@@ -593,3 +593,58 @@ td {
     font-size: 11px;
   }
   }
+/* Correcciones de compatibilidad con admin.js */
+
+.metric-card b {
+  display: block;
+  margin-top: 9px;
+  color: var(--admin-primary);
+  font-size: 27px;
+}
+
+.bar-row {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+}
+
+.bar-row > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bar-row > i {
+  display: block;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #edf1f6;
+}
+
+.bar-row > i > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--admin-primary);
+}
+
+.list-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 9px;
+  background: white;
+}
+
+.list-row b {
+  color: var(--admin-primary);
+  font-size: 13px;
+}
+
+.list-row span {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
