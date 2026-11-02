@@ -1,1 +1,2 @@
-window.FERIA_API_URL = "https://script.google.com/macros/s/AKfycbz7IFu3plmEgnR1me4fIjw9TS0_N0XCCuLFAXKIQ2Q-FYOskCypLm-CgK2iVVVexyOb/exec"; 
+/* Conexión con la nueva aplicación web de Google Apps Script. */
+window.FERIA_API_URL = "https://script.google.com/macros/s/AKfycbyxzngTdKSXIqLYhdUQsCVkICiz8d8p8lVJLtTFef8Z3pNqwrxAupu-isVWU-nTBsQzCA/exec";
