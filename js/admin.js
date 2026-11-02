@@ -1,8 +1,21 @@
 let token = "";
 let role = "";
-let selected = null;
+let edition = "2027";
 
 const $ = id => document.getElementById(id);
+
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+}[c]));
+
+const fmt = value =>
+  value instanceof Date
+    ? value.toLocaleDateString("es-PA")
+    : (value ? new Date(value).toLocaleDateString("es-PA") : "—");
 
 async function call(accion, extra = {}) {
   if (!window.FERIA_API_URL) {
@@ -14,464 +27,660 @@ async function call(accion, extra = {}) {
     headers: {
       "Content-Type": "text/plain;charset=utf-8"
     },
-    body: JSON.stringify({ accion, token, ...extra })
+    body: JSON.stringify({
+      accion,
+      token,
+      edicion: edition,
+      ...extra
+    })
   });
 
   if (!response.ok) {
     throw new Error(`Error de conexión (${response.status}).`);
   }
 
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error("El servidor devolvió una respuesta no válida.");
-  }
-
+  const data = await response.json();
   return data;
 }
 
-// INICIO DE SESIÓN
-$("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
+function message(id, text, isError = false) {
+  const el = $(id);
 
-  const message = $("loginMessage");
-  message.textContent = "Verificando…";
+  if (el) {
+    el.textContent = text;
+    el.classList.toggle("error", isError);
+  }
+}
+
+/* ==========================================
+   INICIO DE SESIÓN
+   ========================================== */
+
+$("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  message("loginMessage", "Verificando…");
 
   try {
-    const data = await call("login", {
+    const d = await call("login", {
       correo: $("loginEmail").value.trim(),
       contrasena: $("loginPassword").value
     });
 
-    if (!data.ok) {
-      throw new Error(data.error || "No fue posible iniciar sesión.");
+    if (!d.ok) {
+      throw new Error(d.error || "No fue posible iniciar sesión.");
     }
 
-    token = data.token;
-    role = String(data.rol || "").toLowerCase();
-
-    const isAdmin = ["administrador", "admin"].includes(role);
+    token = d.token;
+    role = d.rol;
 
     $("loginPanel").classList.add("hidden");
     $("dashboard").classList.remove("hidden");
+    $("logoutBtn").classList.remove("hidden");
 
-    $("sessionLabel").textContent =
-      `Sesión: ${data.nombre || $("loginEmail").value.trim()} · Rol: ${data.rol || "usuario"}`;
+    $("sessionLabel").textContent = `${d.nombre} · ${d.rol}`;
 
-    $("usersPanel").classList.toggle("hidden", !isAdmin);
-    $("massPanel").classList.toggle("hidden", !isAdmin);
-    $("siteEditorPanel").classList.toggle("hidden", !isAdmin);
+    document.querySelectorAll(".admin-only").forEach(x => {
+      x.classList.toggle("hidden", role !== "administrador");
+    });
 
-    await refresh();
+    await loadEditions();
+    await showView("overview");
 
-    if (isAdmin) {
-      await loadSiteContent();
-    }
-
-  } catch (error) {
-    message.textContent = error.message || "Error al iniciar sesión.";
+  } catch (err) {
+    message("loginMessage", err.message, true);
   }
 });
 
-// CERRAR SESIÓN
-$("logoutBtn").addEventListener("click", () => {
+/* ==========================================
+   CERRAR SESIÓN
+   ========================================== */
+
+$("logoutBtn").addEventListener("click", async () => {
+  try {
+    await call("logout");
+  } catch (_) {}
+
   token = "";
   role = "";
-  selected = null;
 
   $("dashboard").classList.add("hidden");
   $("loginPanel").classList.remove("hidden");
-
+  $("logoutBtn").classList.add("hidden");
   $("loginPassword").value = "";
-  $("loginMessage").textContent = "";
-  $("projectDetail").innerHTML = "";
-  $("stats").innerHTML = "";
-  $("projectsBody").innerHTML = "";
 });
 
-$("refreshBtn").addEventListener("click", refresh);
+$("refreshBtn").addEventListener("click", () => loadCurrentView());
 
-// ACTUALIZAR PROYECTOS
-async function refresh() {
-  const button = $("refreshBtn");
-  button.disabled = true;
-
-  try {
-    const data = await call("listar");
-
-    if (!data.ok) {
-      throw new Error(data.error || "No se pudieron cargar los proyectos.");
-    }
-
-    const rows = Array.isArray(data.proyectos) ? data.proyectos : [];
-
-    const stats = [
-      ["Total", rows.length],
-      ["Recibidos", rows.filter(x => x.estado === "Recibido").length],
-      ["Seleccionados", rows.filter(x => x.estado === "Seleccionado").length],
-      ["No seleccionados", rows.filter(x => x.estado === "No seleccionado").length]
-    ];
-
-    $("stats").innerHTML = stats.map(([label, value]) => `
-      <div class="stat">
-        <b>${value}</b>
-        <span>${label}</span>
-      </div>
-    `).join("");
-
-    $("projectsBody").innerHTML = rows.length
-      ? rows.map(project => `
-        <tr>
-          <td><b>${esc(project.codigo)}</b></td>
-          <td>${esc(project.area)}</td>
-          <td>${esc(project.titulo)}</td>
-          <td>${esc(project.lider)}</td>
-          <td><span class="status">${esc(project.estado)}</span></td>
-          <td>
-            <button type="button" class="table-link"
-              data-code="${esc(project.codigo)}">Abrir</button>
-          </td>
-        </tr>
-      `).join("")
-      : '<tr><td colspan="6">Todavía no hay proyectos registrados.</td></tr>';
-
-    document.querySelectorAll("[data-code]").forEach(button => {
-      button.addEventListener("click", () => {
-        const project = rows.find(
-          item => String(item.codigo) === button.dataset.code
-        );
-        if (project) showDetail(project);
-      });
-    });
-
-  } catch (error) {
-    alert(error.message || "No se pudieron actualizar los datos.");
-  } finally {
-    button.disabled = false;
-  }
-}
-
-// DETALLE DEL PROYECTO
-function showDetail(project) {
-  selected = project;
-
-  $("projectDetail").innerHTML = `
-    <div class="detail-grid">
-      ${[
-        ["Código", project.codigo],
-        ["Área", project.area],
-        ["Título", project.titulo],
-        ["Tipo", project.tipo],
-        ["Líder", project.lider],
-        ["Correo", project.correo],
-        ["Grado / salón", `${project.grado || ""} · ${project.salon || ""}`],
-        ["Asesor", project.asesor]
-      ].map(([label, value]) => `
-        <div><b>${esc(label)}</b>${esc(value)}</div>
-      `).join("")}
-
-      <div>
-        <b>Archivo</b>
-        ${
-          project.archivoUrl
-            ? `<a target="_blank" rel="noopener noreferrer"
-                 href="${safeUrl(project.archivoUrl)}">Abrir anteproyecto</a>`
-            : "No disponible"
-        }
-      </div>
-
-      <div><b>Resumen</b>${esc(project.resumen)}</div>
-    </div>
-
-    <div class="admin-actions">
-      <label>Estado
-        <select id="newStatus">
-          <option>Recibido</option>
-          <option>En revisión</option>
-          <option>Seleccionado</option>
-          <option>No Seleccionado</option>
-        </select>
-      </label>
-
-      <label>Observaciones
-        <textarea id="obs" rows="2"
-          placeholder="Observaciones para el equipo">${esc(project.observaciones || "")}</textarea>
-      </label>
-
-      <label class="check">
-        <input type="checkbox" id="notify" checked>
-        <span>Notificar al líder por correo si cambia el estado u observaciones</span>
-      </label>
-
-      <button class="button primary" id="saveStatus" type="button">
-        Guardar evaluación
-      </button>
-    </div>
-
-    <div id="saveMessage" class="message"
-      role="status" aria-live="polite"></div>
-  `;
-
-  $("newStatus").value = project.estado || "Recibido";
-  $("saveStatus").addEventListener("click", saveStatus);
-}
-
-// GUARDAR EVALUACIÓN
-async function saveStatus() {
-  if (!selected) return;
-
-  const button = $("saveStatus");
-  const message = $("saveMessage");
-
-  button.disabled = true;
-  message.textContent = "Guardando…";
-
-  try {
-    const data = await call("actualizar", {
-      codigo: selected.codigo,
-      estado: $("newStatus").value,
-      observaciones: $("obs").value,
-      notificar: $("notify").checked
-    });
-
-    if (!data.ok) {
-      throw new Error(data.error || "No se pudo guardar la evaluación.");
-    }
-
-    message.textContent = data.notificado
-      ? "Actualización guardada y correo enviado al líder."
-      : "Actualización guardada.";
-
-    await refresh();
-
-  } catch (error) {
-    message.textContent = error.message || "Error al guardar.";
-  } finally {
-    button.disabled = false;
-  }
-}
-
-// CREAR USUARIOS
-$("userForm").addEventListener("submit", async event => {
-  event.preventDefault();
-
-  const message = $("userMessage");
-  const button = event.submitter;
-
-  if (button) button.disabled = true;
-  message.textContent = "Creando cuenta…";
-
-  try {
-    const data = await call("crearUsuario", {
-      nombre: $("newName").value.trim(),
-      correo: $("newEmail").value.trim(),
-      rol: $("newRole").value,
-      contrasena: $("newPassword").value
-    });
-
-    if (!data.ok) {
-      throw new Error(data.error || "No se pudo crear la cuenta.");
-    }
-
-    message.textContent = "Cuenta creada correctamente.";
-    event.target.reset();
-
-  } catch (error) {
-    message.textContent = error.message || "Error al crear la cuenta.";
-  } finally {
-    if (button) button.disabled = false;
-  }
+$("editionSelect").addEventListener("change", async e => {
+  edition = e.target.value;
+  await loadCurrentView();
 });
 
-// COMUNICADOS MASIVOS
-async function sendMass(prueba) {
-  const msg = $("massMessage");
-  const asunto = $("massAsunto").value.trim();
-  const mensaje = $("massMensaje").value.trim();
+document.querySelectorAll(".nav-item[data-view]").forEach(btn => {
+  btn.addEventListener("click", () => showView(btn.dataset.view));
+});
 
-  if (!asunto || !mensaje) {
-    msg.textContent = "Escribe el asunto y el mensaje.";
+/* ==========================================
+   EDICIONES
+   ========================================== */
+
+async function loadEditions() {
+  const d = await call("edicionesListar");
+
+  if (!d.ok) {
+    throw new Error(d.error || "No se pudieron cargar las ediciones.");
+  }
+
+  const list = d.ediciones || [];
+
+  $("editionSelect").innerHTML = list.map(x =>
+    `<option value="${esc(x.Anio)}">${esc(x.Nombre || x.Anio)}</option>`
+  ).join("");
+
+  if (!list.length) {
+    $("editionSelect").innerHTML =
+      '<option value="2027">2027</option>';
+  }
+
+  edition = $("editionSelect").value || "2027";
+}
+
+/* ==========================================
+   VISTAS DEL PANEL
+   ========================================== */
+
+const titles = {
+  overview: [
+    "Resumen general",
+    "Indicadores de la edición seleccionada."
+  ],
+  projects: [
+    "Proyectos registrados",
+    "Inscripciones y evaluación."
+  ],
+  editions: [
+    "Administrar ediciones",
+    "Convocatorias independientes por año."
+  ],
+  gallery: [
+    "Galería fotográfica",
+    "Gestión privada de imágenes y autorizaciones."
+  ],
+  photoStats: [
+    "Estadísticas de fotografías",
+    "Visualizaciones y descargas por edición."
+  ],
+  inventory: [
+    "Inventario de laboratorio",
+    "Materiales y equipos exclusivamente de laboratorio."
+  ],
+  calendar: [
+    "Calendario",
+    "Fechas y actividades institucionales."
+  ],
+  requests: [
+    "Solicitudes",
+    "Trámites relacionados con los proyectos."
+  ],
+  documents: [
+    "Expedientes y documentos",
+    "Documentación y versiones por proyecto."
+  ],
+  credentials: [
+    "Acreditaciones QR",
+    "Credenciales de participantes y equipo."
+  ],
+  surveys: [
+    "Encuestas",
+    "Instrumentos y respuestas."
+  ],
+  partners: [
+    "Colaboradores",
+    "Aportes no monetarios y compromisos."
+  ],
+  users: [
+    "Usuarios y permisos",
+    "Cuentas administrativas y alcance por edición."
+  ],
+  content: [
+    "Contenido público",
+    "Información de la convocatoria."
+  ]
+};
+
+async function showView(name) {
+  if (
+    role !== "administrador" &&
+    [
+      "editions",
+      "gallery",
+      "photoStats",
+      "inventory",
+      "calendar",
+      "requests",
+      "documents",
+      "credentials",
+      "surveys",
+      "partners",
+      "users",
+      "content"
+    ].includes(name)
+  ) {
     return;
   }
 
-  if (!prueba && !confirm(
-    "¿Enviar este comunicado a los equipos del filtro seleccionado? No se puede deshacer."
-  )) return;
+  document.querySelectorAll(".view-panel").forEach(x => {
+    x.classList.add("hidden");
+  });
 
-  $("massTest").disabled = true;
-  $("massSend").disabled = true;
-  msg.textContent = prueba ? "Enviando prueba…" : "Enviando comunicado…";
+  $("view-" + name)?.classList.remove("hidden");
 
-  try {
-    const data = await call("enviarMasivo", {
-      asunto,
-      mensaje,
-      filtroArea: $("massArea").value,
-      filtroEstado: $("massEstado").value,
-      prueba
-    });
+  document.querySelectorAll(".nav-item[data-view]").forEach(x => {
+    x.classList.toggle("active", x.dataset.view === name);
+  });
 
-    if (!data.ok) {
-      throw new Error(data.error || "No se pudo enviar el comunicado.");
-    }
+  $("viewTitle").textContent = titles[name]?.[0] || "Panel";
+  $("viewSubtitle").textContent = titles[name]?.[1] || "";
 
-    msg.textContent = prueba
-      ? "Prueba enviada a tu correo."
-      : `Comunicado enviado a ${data.enviados || 0} equipo(s)` +
-        (data.fallidos ? ` · ${data.fallidos} fallido(s).` : ".");
+  await loadView(name);
+}
 
-  } catch (error) {
-    msg.textContent = error.message || "Error al enviar.";
-  } finally {
-    $("massTest").disabled = false;
-    $("massSend").disabled = false;
+async function loadCurrentView() {
+  const active = document.querySelector(".nav-item.active");
+
+  if (active) {
+    await loadView(active.dataset.view);
   }
 }
 
-$("massForm").addEventListener("submit", event => {
-  event.preventDefault();
-  sendMass(false);
+async function loadView(name) {
+  try {
+    if (name === "overview") await loadOverview();
+    if (name === "projects") await loadProjects();
+    if (name === "editions") await loadEditionsList();
+    if (name === "gallery") await loadGallery();
+    if (name === "photoStats") await loadPhotoStats();
+
+    if (name === "inventory") {
+      await loadModule("inventario_laboratorio", "inventoryList");
+    }
+
+    if (name === "calendar") {
+      await loadModule("calendario", "calendarList");
+    }
+
+    if (name === "requests") {
+      await loadModule("solicitudes", "requestsList");
+    }
+
+    if (name === "documents") {
+      await loadModule("documentos", "documentsList");
+    }
+
+    if (name === "credentials") {
+      await loadModule("acreditaciones", "credentialsList");
+    }
+
+    if (name === "surveys") {
+      await loadModule("encuestas", "surveysList");
+    }
+
+    if (name === "partners") {
+      await loadModule("colaboradores", "partnersList");
+    }
+
+  } catch (e) {
+    alert(e.message || "No se pudo cargar esta sección.");
+  }
+}
+
+/* ==========================================
+   RESUMEN GENERAL
+   ========================================== */
+
+async function loadOverview() {
+  const d = await call("panelResumen");
+
+  if (!d.ok) {
+    throw new Error(d.error);
+  }
+
+  const r = d.resumen;
+
+  const stats = [
+    ["Proyectos", r.total],
+    ["Áreas temáticas", Object.keys(r.porArea).length],
+    ["Grados participantes", Object.keys(r.porGrado).length],
+    ["Estados registrados", Object.keys(r.porEstado).length]
+  ];
+
+  $("overviewStats").innerHTML = stats.map(([a, b]) =>
+    `<article class="metric-card">
+      <span>${esc(a)}</span>
+      <b>${Number(b) || 0}</b>
+    </article>`
+  ).join("");
+
+  renderBars("areaStats", r.porArea);
+  renderBars("gradeStats", r.porGrado);
+}
+
+function renderBars(id, obj) {
+  const vals = Object.entries(obj || {})
+    .sort((a, b) => b[1] - a[1]);
+
+  const max = Math.max(1, ...vals.map(x => x[1]));
+
+  $(id).innerHTML = vals.length
+    ? vals.map(([k, v]) =>
+      `<div class="bar-row">
+        <div>
+          <span>${esc(k || "Sin dato")}</span>
+          <b>${v}</b>
+        </div>
+        <i>
+          <span style="width:${Math.round(v / max * 100)}%"></span>
+        </i>
+      </div>`
+    ).join("")
+    : '<p class="muted">Sin registros para esta edición.</p>';
+}
+
+/* ==========================================
+   PROYECTOS
+   ========================================== */
+
+async function loadProjects() {
+  const d = await call("listar");
+
+  if (!d.ok) {
+    throw new Error(d.error);
+  }
+
+  $("projectsBody").innerHTML = (d.proyectos || []).map(x =>
+    `<tr>
+      <td><b>${esc(x.codigo)}</b></td>
+      <td>${esc(x.area)}</td>
+      <td>${esc(x.titulo)}</td>
+      <td>${esc(x.lider)}</td>
+      <td>${esc(x.grado)} · ${esc(x.salon)}</td>
+      <td>${esc(x.estado)}</td>
+    </tr>`
+  ).join("") ||
+  '<tr><td colspan="6">No hay proyectos registrados.</td></tr>';
+}
+
+/* ==========================================
+   LISTA DE EDICIONES
+   ========================================== */
+
+async function loadEditionsList() {
+  const d = await call("edicionesListar");
+
+  if (!d.ok) {
+    throw new Error(d.error);
+  }
+
+  $("editionsList").innerHTML = (d.ediciones || []).map(x =>
+    `<article class="list-row">
+      <b>${esc(x.Nombre)}</b>
+      <span>
+        ${esc(x.Estado)} · Cierre:
+        ${esc(x.FechaCierre || "No definido")}
+      </span>
+    </article>`
+  ).join("");
+}
+
+$("editionForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  try {
+    const d = await call("edicionGuardar", {
+      anio: $("edYear").value,
+      nombre: $("edName").value,
+      estado: $("edStatus").value,
+      fechaCierre: $("edClose").value,
+      descripcion: $("edDescription").value
+    });
+
+    if (!d.ok) {
+      throw new Error(d.error);
+    }
+
+    message("editionMessage", "Edición guardada.");
+
+    await loadEditions();
+    await loadEditionsList();
+
+  } catch (x) {
+    message("editionMessage", x.message, true);
+  }
 });
 
-$("massTest").addEventListener("click", () => sendMass(true));
+/* ==========================================
+   GALERÍA FOTOGRÁFICA
+   ========================================== */
 
-// EDITOR VISUAL DEL SITIO
-function updateSitePreview() {
-  const val = id => $(id).value;
+async function loadGallery() {
+  const d = await call("moduloListar", {
+    modulo: "fotografias"
+  });
 
-  $("previewTitulo").textContent = val("siteTitulo") || "Feria Científica 2027";
-  $("previewInstitucion").textContent = val("siteInstitucion");
-  $("previewSubtitulo").textContent = val("siteSubtitulo");
-  $("previewDescripcion").textContent = val("siteDescripcion");
-  $("previewAviso").textContent = val("siteAviso");
+  if (!d.ok) {
+    throw new Error(d.error);
+  }
 
-  $("sitePreview").style.setProperty(
-    "--preview-primary", val("siteColor1") || "#17365d"
-  );
-  $("sitePreview").style.setProperty(
-    "--preview-secondary", val("siteColor2") || "#b32632"
-  );
+  $("photoList").innerHTML = (d.registros || []).map(x =>
+    `<article class="photo-card">
+      ${x.Url ? `<img src="${esc(x.Url)}" alt="">` : ""}
+      <div>
+        <b>${esc(x.Titulo)}</b>
+        <small>
+          ${
+            x.Publicada === true ||
+            String(x.Publicada) === "true"
+              ? "Publicada"
+              : "No publicada"
+          }
+          · ${Number(x.Visualizaciones) || 0} vistas
+        </small>
+      </div>
+    </article>`
+  ).join("") ||
+  '<p class="muted">No hay fotografías registradas.</p>';
 }
 
-async function loadSiteContent() {
-  const msg = $("siteEditorMessage");
-  msg.textContent = "Cargando contenido…";
+$("photoForm").addEventListener("submit", async e => {
+  e.preventDefault();
 
   try {
-    const data = await call("obtenerContenido");
-
-    if (!data.ok) {
-      throw new Error(data.error || "No se pudo cargar el contenido.");
-    }
-
-    const c = data.contenido || {};
-
-    const fields = {
-      titulo: "siteTitulo",
-      institucion: "siteInstitucion",
-      subtitulo: "siteSubtitulo",
-      descripcion: "siteDescripcion",
-      fechaCierre: "siteFecha",
-      correoContacto: "siteCorreo",
-      colorPrimario: "siteColor1",
-      colorSecundario: "siteColor2",
-      aviso: "siteAviso",
-      logoUrl: "siteLogo",
-      imagenPortada: "siteCover"
-    };
-
-    Object.entries(fields).forEach(([key, id]) => {
-      $(id).value = c[key] || "";
+    const d = await call("moduloGuardar", {
+      modulo: "fotografias",
+      datos: {
+        Titulo: $("photoTitle").value,
+        Url: $("photoUrl").value,
+        Descripcion: $("photoDescription").value,
+        MiniaturaUrl: $("photoThumb").value,
+        Autorizacion: $("photoConsent").checked ? "Sí" : "No",
+        Publicada: $("photoPublish").checked,
+        Visualizaciones: 0,
+        Descargas: 0,
+        Fecha: new Date().toISOString()
+      }
     });
 
-    updateSitePreview();
-    msg.textContent = "Contenido cargado.";
-
-  } catch (error) {
-    msg.textContent = error.message || "Error al cargar contenido.";
-  }
-}
-
-if ($("siteEditorForm")) {
-  [
-    "siteTitulo",
-    "siteInstitucion",
-    "siteSubtitulo",
-    "siteDescripcion",
-    "siteAviso",
-    "siteColor1",
-    "siteColor2"
-  ].forEach(id => {
-    $(id).addEventListener("input", updateSitePreview);
-  });
-
-  $("siteEditorForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    const btn = $("saveSiteContentBtn");
-    const msg = $("siteEditorMessage");
-
-    btn.disabled = true;
-    msg.textContent = "Guardando cambios…";
-
-    const contenido = {
-      titulo: $("siteTitulo").value.trim(),
-      institucion: $("siteInstitucion").value.trim(),
-      subtitulo: $("siteSubtitulo").value.trim(),
-      descripcion: $("siteDescripcion").value.trim(),
-      fechaCierre: $("siteFecha").value,
-      correoContacto: $("siteCorreo").value.trim(),
-      colorPrimario: $("siteColor1").value,
-      colorSecundario: $("siteColor2").value,
-      aviso: $("siteAviso").value.trim(),
-      logoUrl: $("siteLogo").value.trim(),
-      imagenPortada: $("siteCover").value.trim()
-    };
-
-    try {
-      const data = await call("guardarContenido", { contenido });
-
-      if (!data.ok) {
-        throw new Error(data.error || "No se pudieron guardar los cambios.");
-      }
-
-      msg.textContent =
-        "Cambios guardados. Se mostrarán al recargar la página pública.";
-
-      updateSitePreview();
-
-    } catch (error) {
-      msg.textContent = error.message || "Error al guardar.";
-    } finally {
-      btn.disabled = false;
+    if (!d.ok) {
+      throw new Error(d.error);
     }
+
+    message("photoMessage", "Fotografía registrada.");
+
+    $("photoForm").reset();
+
+    await loadGallery();
+
+  } catch (x) {
+    message("photoMessage", x.message, true);
+  }
+});
+
+/* ==========================================
+   ESTADÍSTICAS FOTOGRÁFICAS
+   ========================================== */
+
+async function loadPhotoStats() {
+  const d = await call("fotografiaEstadisticas");
+
+  if (!d.ok) {
+    throw new Error(d.error);
+  }
+
+  const r = d.resumen;
+
+  $("photoMetricCards").innerHTML = [
+    ["Fotografías", r.fotografias],
+    ["Publicadas", r.publicadas],
+    ["Visualizaciones", r.visualizaciones],
+    ["Descargas", r.descargas]
+  ].map(([a, b]) =>
+    `<article class="metric-card">
+      <span>${a}</span>
+      <b>${Number(b) || 0}</b>
+    </article>`
+  ).join("");
+
+  $("photoRanking").innerHTML = (d.porFotografia || []).map(x =>
+    `<tr>
+      <td>${esc(x.titulo)}</td>
+      <td>${x.visualizaciones}</td>
+      <td>${x.descargas}</td>
+    </tr>`
+  ).join("") ||
+  '<tr><td colspan="3">Todavía no hay visualizaciones.</td></tr>';
+
+  renderBars(
+    "photoDaily",
+    Object.fromEntries(
+      (d.porDia || []).map(x => [x.fecha, x.visualizaciones])
+    )
+  );
+}
+
+/* ==========================================
+   MÓDULOS GENERALES
+   ========================================== */
+
+async function loadModule(module, target) {
+  const d = await call("moduloListar", {
+    modulo: module
   });
 
-  $("reloadContentBtn").addEventListener("click", loadSiteContent);
+  if (!d.ok) {
+    throw new Error(d.error);
+  }
+
+  const rows = d.registros || [];
+
+  $(target).innerHTML = rows.length
+    ? rows.map(x => {
+      const title =
+        x.Nombre ||
+        x.Titulo ||
+        x.Persona ||
+        x.Responsable ||
+        x.Tipo ||
+        x.DocumentoId ||
+        "Registro";
+
+      const sub =
+        x.Estado ||
+        x.FechaInicio ||
+        x.Fecha ||
+        x.Categoria ||
+        "";
+
+      return `<article class="list-row">
+        <b>${esc(title)}</b>
+        <span>${esc(sub)}</span>
+      </article>`;
+    }).join("")
+    : '<p class="muted">No hay registros en este módulo.</p>';
 }
 
-// SEGURIDAD HTML
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, character => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[character]);
-}
+/* ==========================================
+   INVENTARIO DE LABORATORIO
+   ========================================== */
 
-// VALIDACIÓN DE ENLACES
-function safeUrl(value) {
+$("inventoryForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
   try {
-    const url = new URL(String(value), window.location.href);
+    const total = Number($("invTotal").value);
+    const available = Number($("invAvailable").value);
 
-    return ["http:", "https:"].includes(url.protocol)
-      ? esc(url.href)
-      : "#";
-
-  } catch {
-    return "#";
-  }
+    if (available > total) {
+      throw new Error(
+        "La cantidad disponible no puede superar la cantidad total."
+      );
     }
+
+    const d = await call("moduloGuardar", {
+      modulo: "inventario_laboratorio",
+      datos: {
+        Nombre: $("invName").value,
+        Categoria: $("invCategory").value,
+        CantidadTotal: total,
+        CantidadDisponible: available,
+        Ubicacion: $("invLocation").value,
+        Estado: $("invState").value,
+        Descripcion: $("invDescription").value,
+        Actualizado: new Date().toISOString()
+      }
+    });
+
+    if (!d.ok) {
+      throw new Error(d.error);
+    }
+
+    message(
+      "inventoryMessage",
+      "Material agregado al inventario."
+    );
+
+    $("inventoryForm").reset();
+
+    await loadModule(
+      "inventario_laboratorio",
+      "inventoryList"
+    );
+
+  } catch (x) {
+    message("inventoryMessage", x.message, true);
+  }
+});
+
+/* ==========================================
+   CALENDARIO
+   ========================================== */
+
+$("calendarForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  try {
+    const d = await call("moduloGuardar", {
+      modulo: "calendario",
+      datos: {
+        Titulo: $("calTitle").value,
+        Tipo: $("calType").value,
+        FechaInicio: $("calStart").value,
+        FechaFin: $("calEnd").value,
+        Descripcion: $("calDescription").value,
+        Visible: true
+      }
+    });
+
+    if (!d.ok) {
+      throw new Error(d.error);
+    }
+
+    $("calendarForm").reset();
+
+    await loadModule("calendario", "calendarList");
+
+  } catch (x) {
+    alert(x.message);
+  }
+});
+
+/* ==========================================
+   USUARIOS Y PERMISOS
+   ========================================== */
+
+$("userForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  try {
+    const d = await call("crearUsuario", {
+      nombre: $("userName").value,
+      correo: $("userEmail").value,
+      rol: $("userRole").value,
+      contrasena: $("userPass").value,
+      edicionesAsignadas: $("userEditions").value || "*"
+    });
+
+    if (!d.ok) {
+      throw new Error(d.error);
+    }
+
+    message(
+      "userMessage",
+      "Usuario creado correctamente."
+    );
+
+    $("userForm").reset();
+
+  } catch (x) {
+    message("userMessage", x.message, true);
+  }
+});
