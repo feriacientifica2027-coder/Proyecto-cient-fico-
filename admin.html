@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173b63">
 <title>Administración | Feria Científica</title>
 <link rel="stylesheet" href="css/estilos.css">
 <link rel="stylesheet" href="css/admin-panel.css">
@@ -43,6 +44,7 @@
   <div id="dashboard" class="admin-shell hidden">
 
     <aside class="admin-sidebar">
+
       <div class="sidebar-heading">
         <span class="sidebar-symbol">FC</span>
         <div>
@@ -56,60 +58,61 @@
         <select id="editionSelect"></select>
       </div>
 
-      <p class="nav-caption">PANEL PRINCIPAL</p>
       <button class="nav-item active" data-view="overview">
-        <span class="nav-icon">⌂</span><span>Resumen general</span>
+        <span class="nav-icon">⌂</span>
+        <span>Resumen general</span>
       </button>
 
-      <p class="nav-caption">GESTIÓN ACADÉMICA</p>
-      <button class="nav-item" data-view="projects">
-        <span class="nav-icon">▤</span><span>Anteproyectos</span>
-      </button>
-      <button class="nav-item admin-only" data-view="editions">
-        <span class="nav-icon">◷</span><span>Ediciones</span>
-      </button>
+      <details class="sidebar-group">
+        <summary>Gestión académica</summary>
+        <button class="nav-item" data-view="projects">
+          <span class="nav-icon">▤</span><span>Anteproyectos</span>
+        </button>
+        <button class="nav-item admin-only" data-view="editions">
+          <span class="nav-icon">◷</span><span>Ediciones</span>
+        </button>
+      </details>
 
-      <p class="nav-caption">RECURSOS Y ACTIVIDADES</p>
-      <button class="nav-item admin-only" data-view="gallery">
-        <span class="nav-icon">▧</span><span>Galería fotográfica</span>
-      </button>
-      <button class="nav-item admin-only" data-view="photoStats">
-        <span class="nav-icon">▥</span><span>Estadísticas fotográficas</span>
-      </button>
-      <button class="nav-item admin-only" data-view="inventory">
-        <span class="nav-icon">⌑</span><span>Inventario de laboratorio</span>
-      </button>
-      <button class="nav-item admin-only" data-view="calendar">
-        <span class="nav-icon">▦</span><span>Calendario</span>
-      </button>
+      <details class="sidebar-group">
+        <summary>Recursos y actividades</summary>
+        <button class="nav-item admin-only" data-view="gallery">
+          <span class="nav-icon">▧</span><span>Galería fotográfica</span>
+        </button>
+        <button class="nav-item admin-only" data-view="photoStats">
+          <span class="nav-icon">▥</span><span>Estadísticas fotográficas</span>
+        </button>
+        <button class="nav-item admin-only" data-view="inventory">
+          <span class="nav-icon">⌑</span><span>Inventario de laboratorio</span>
+        </button>
+        <button class="nav-item admin-only" data-view="calendar">
+          <span class="nav-icon">▦</span><span>Calendario</span>
+        </button>
+        <button class="nav-item admin-only" data-view="requests">
+          <span class="nav-icon">▣</span><span>Solicitudes de equipos</span>
+        </button>
+        <button class="nav-item admin-only" data-view="documents">
+          <span class="nav-icon">▤</span><span>Expedientes y documentos</span>
+        </button>
+        <button class="nav-item admin-only" data-view="credentials">
+          <span class="nav-icon">▧</span><span>Acreditaciones QR</span>
+        </button>
+        <button class="nav-item admin-only" data-view="surveys">
+          <span class="nav-icon">▥</span><span>Encuestas y respuestas</span>
+        </button>
+        <button class="nav-item admin-only" data-view="partners">
+          <span class="nav-icon">♙</span><span>Colaboradores institucionales</span>
+        </button>
+      </details>
 
-      <button class="nav-item admin-only" data-view="requests">
-        <span class="nav-icon">▣</span><span>Solicitudes de equipos</span>
-      </button>
-
-      <button class="nav-item admin-only" data-view="documents">
-        <span class="nav-icon">▤</span><span>Expedientes y documentos</span>
-      </button>
-
-      <button class="nav-item admin-only" data-view="credentials">
-        <span class="nav-icon">▧</span><span>Acreditaciones QR</span>
-      </button>
-
-      <button class="nav-item admin-only" data-view="surveys">
-        <span class="nav-icon">▥</span><span>Encuestas y respuestas</span>
-      </button>
-
-      <button class="nav-item admin-only" data-view="partners">
-        <span class="nav-icon">♙</span><span>Colaboradores institucionales</span>
-      </button>
-
-      <p class="nav-caption">ADMINISTRACIÓN DEL SISTEMA</p>
-      <button class="nav-item admin-only" data-view="users">
-        <span class="nav-icon">♙</span><span>Usuarios y permisos</span>
-      </button>
-      <button class="nav-item admin-only" data-view="content">
-        <span class="nav-icon">⚙</span><span>Contenido público</span>
-      </button>
+      <details class="sidebar-group">
+        <summary>Administración del sistema</summary>
+        <button class="nav-item admin-only" data-view="users">
+          <span class="nav-icon">♙</span><span>Usuarios y permisos</span>
+        </button>
+        <button class="nav-item admin-only" data-view="content">
+          <span class="nav-icon">⚙</span><span>Contenido público</span>
+        </button>
+      </details>
 
       <a class="nav-item nav-link" href="index.html">
         <span class="nav-icon">↗</span><span>Ir al portal público</span>
@@ -119,6 +122,7 @@
         <b>Acceso interno</b>
         <span>Las herramientas de gestión solo están disponibles para usuarios autorizados.</span>
       </div>
+
     </aside>
 
     <section class="admin-content">
@@ -155,17 +159,17 @@
           <div class="table-scroll">
             <table>
               <thead>
-  <tr>
-    <th>Código</th>
-    <th>Área</th>
-    <th>Proyecto</th>
-    <th>Líder</th>
-    <th>Grado</th>
-    <th>Estado</th>
-    <th>Acciones</th>
-  </tr>
-</thead>
-<tbody id="projectsBody"></tbody>
+                <tr>
+                  <th>Código</th>
+                  <th>Área</th>
+                  <th>Proyecto</th>
+                  <th>Líder</th>
+                  <th>Grado</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="projectsBody"></tbody>
             </table>
           </div>
         </div>
@@ -175,12 +179,8 @@
         <div class="panel">
           <h2>Administrar ediciones</h2>
           <form id="editionForm" class="form-grid">
-            <label>Año
-              <input id="edYear" type="number" min="2027" max="2100" required>
-            </label>
-            <label>Nombre
-              <input id="edName" required>
-            </label>
+            <label>Año<input id="edYear" type="number" min="2027" max="2100" required></label>
+            <label>Nombre<input id="edName" required></label>
             <label>Estado
               <select id="edStatus">
                 <option>Configuración</option>
@@ -190,12 +190,8 @@
                 <option>Archivada</option>
               </select>
             </label>
-            <label>Fecha de cierre
-              <input id="edClose" type="date">
-            </label>
-            <label class="wide">Descripción
-              <textarea id="edDescription" rows="2"></textarea>
-            </label>
+            <label>Fecha de cierre<input id="edClose" type="date"></label>
+            <label class="wide">Descripción<textarea id="edDescription" rows="2"></textarea></label>
             <button class="button primary" type="submit">Guardar edición</button>
             <p id="editionMessage" class="message"></p>
           </form>
@@ -206,20 +202,12 @@
       <section class="view-panel hidden" id="view-gallery">
         <div class="panel">
           <h2>Galería fotográfica</h2>
-          <p class="muted">La publicación exige autorización registrada. Las fotografías no se muestran aquí al público hasta que administración las publique.</p>
+          <p class="muted">La publicación exige autorización registrada.</p>
           <form id="photoForm" class="form-grid">
-            <label>Título
-              <input id="photoTitle" required maxlength="160">
-            </label>
-            <label>URL de imagen
-              <input id="photoUrl" type="url" required placeholder="https://...">
-            </label>
-            <label class="wide">Descripción
-              <textarea id="photoDescription" rows="2"></textarea>
-            </label>
-            <label>URL de miniatura
-              <input id="photoThumb" type="url" placeholder="https://...">
-            </label>
+            <label>Título<input id="photoTitle" required maxlength="160"></label>
+            <label>URL de imagen<input id="photoUrl" type="url" required placeholder="https://..."></label>
+            <label class="wide">Descripción<textarea id="photoDescription" rows="2"></textarea></label>
+            <label>URL de miniatura<input id="photoThumb" type="url" placeholder="https://..."></label>
             <label class="checkline">
               <input id="photoConsent" type="checkbox" required>
               Confirmo que existe autorización para publicar esta fotografía.
@@ -336,9 +324,7 @@
               </select>
             </label>
             <label>Contraseña temporal<input id="userPass" type="password" minlength="12" required></label>
-            <label class="wide">Ediciones asignadas
-              <input id="userEditions" placeholder="2027,2028 o * para todas">
-            </label>
+            <label class="wide">Ediciones asignadas<input id="userEditions" placeholder="2027,2028 o * para todas"></label>
             <button class="button primary" type="submit">Crear usuario</button>
             <p id="userMessage" class="message"></p>
           </form>
@@ -360,4 +346,4 @@
 <script src="js/config.js"></script>
 <script src="js/admin.js"></script>
 </body>
-</html>
+        </html>
