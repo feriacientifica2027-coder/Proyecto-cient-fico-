@@ -1,3 +1,4 @@
+
 :root {
   --admin-primary: #173b63;
   --admin-primary-dark: #102c4b;
@@ -258,6 +259,62 @@
   color: var(--admin-accent);
 }
 
+/* CATEGORÍAS PLEGABLES */
+
+.sidebar-group {
+  margin: 8px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.sidebar-group summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 43px;
+  padding: 10px 32px 10px 10px;
+  border-radius: 8px;
+  color: var(--admin-primary);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+  transition: background .18s ease;
+}
+
+.sidebar-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar-group summary::after {
+  content: "+";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--admin-accent);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.sidebar-group[open] summary::after {
+  content: "−";
+}
+
+.sidebar-group summary:hover {
+  background: #f2f5f9;
+}
+
+.sidebar-group .nav-item {
+  min-height: 38px;
+  padding-left: 17px;
+  margin: 2px 0;
+}
+
+.sidebar-group .nav-item.active {
+  background: #eaf0f7;
+}
+
 .sidebar-note {
   display: flex;
   flex-direction: column;
@@ -448,7 +505,7 @@
   font-size: 27px;
 }
 
-/* GRÁFICOS DE BARRAS */
+/* GRÁFICOS */
 
 .bar-list {
   display: grid;
