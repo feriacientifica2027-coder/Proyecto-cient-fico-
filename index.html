@@ -110,42 +110,49 @@
       font-size: 13px;
     }
 
-    .portal-about {
-      display: grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 25px;
-      align-items: center;
-      padding: 30px;
+    /* CONVOCATORIA SIN CARTEL */
+
+    .portal-announcement {
+      padding: 32px;
       background: white;
       border: 1px solid var(--gris);
+      border-left: 5px solid var(--rojo);
       border-radius: 12px;
       box-shadow: var(--sombra);
     }
 
-    .portal-about h2 {
+    .portal-announcement h2 {
+      margin: 8px 0 12px;
       color: var(--azul);
       font-size: 27px;
-      line-height: 1.2;
     }
 
-    .portal-about p {
+    .portal-announcement p {
+      max-width: 850px;
       color: #66758a;
+      line-height: 1.7;
     }
 
-    .poster-frame {
-      padding: 12px;
-      background: #f3f5f8;
-      border: 1px solid var(--gris);
-      border-radius: 10px;
-      text-align: center;
+    .announcement-date {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 22px 0;
+      padding: 16px;
+      background: #f3f6fa;
+      border-radius: 9px;
     }
 
-    .poster-frame img {
-      display: block;
-      width: 100%;
-      max-height: 370px;
-      object-fit: contain;
-      border-radius: 7px;
+    .announcement-date strong {
+      color: var(--azul);
+      font-size: 13px;
+    }
+
+    .announcement-date span {
+      color: var(--rojo);
+      font-size: 14px;
+      font-weight: 800;
     }
 
     .gallery-grid {
@@ -214,10 +221,6 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .portal-about {
-        grid-template-columns: 1fr;
-      }
-
       .gallery-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -233,13 +236,18 @@
         grid-template-columns: 1fr;
       }
 
-      .portal-about,
+      .portal-announcement,
       .portal-cta {
         padding: 22px;
       }
 
       .portal-section {
         margin-top: 38px;
+      }
+
+      .announcement-date {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
   </style>
@@ -303,37 +311,30 @@
 
   <section class="portal-section" id="convocatoria">
 
-    <div class="portal-about">
+    <div class="portal-announcement">
 
-      <div>
-        <p class="eyebrow">Convocatoria oficial</p>
+      <p class="eyebrow">Convocatoria oficial</p>
 
-        <h2>Participa en la Feria Científica 2027</h2>
+      <h2>Participa en la Feria Científica 2027</h2>
 
-        <p>
-          Invitamos a los estudiantes a presentar proyectos
-          de investigación, experimentación e innovación
-          dentro de las distintas áreas del conocimiento.
-        </p>
+      <p>
+        Invitamos a los estudiantes a presentar proyectos
+        de investigación, experimentación e innovación
+        dentro de las distintas áreas del conocimiento.
+      </p>
 
-        <div class="notice">
-          <strong>Fecha límite de inscripción</strong>
-          <span data-site="fecha">20 de abril de 2027</span>
-          <span data-site="aviso">
-            Consulta las indicaciones antes de registrar tu proyecto.
-          </span>
-        </div>
-
-        <a href="inscripcion.html" class="button primary">
-          Ir al formulario de inscripción
-        </a>
+      <div class="announcement-date">
+        <strong>Fecha límite de inscripción</strong>
+        <span data-site="fecha">20 de abril de 2027</span>
       </div>
 
-      <div class="poster-frame">
-        <img
-          src="file_00000000cbe081f98ef02e19d0d15d99.png"
-          alt="Cartel oficial de la Feria Científica 2027">
-      </div>
+      <p data-site="aviso">
+        Consulta las indicaciones antes de registrar tu proyecto.
+      </p>
+
+      <a href="inscripcion.html" class="button primary">
+        Ir al formulario de inscripción
+      </a>
 
     </div>
 
