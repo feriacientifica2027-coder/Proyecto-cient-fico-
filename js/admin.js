@@ -347,17 +347,19 @@ function renderBars(id, obj) {
 }
 
 /* ==========================================
-   PROYECTOS
+   PROYECTOS Y EVALUACIÓN
    ========================================== */
 
 async function loadProjects() {
   const d = await call("listar");
 
   if (!d.ok) {
-    throw new Error(d.error);
+    throw new Error(d.error || "No se pudieron cargar los proyectos.");
   }
 
-  $("projectsBody").innerHTML = (d.proyectos || []).map(x =>
+  const projects = d.proyectos || [];
+
+  $("projectsBody").innerHTML = projects.map(x =>
     `<tr>
       <td><b>${esc(x.codigo)}</b></td>
       <td>${esc(x.area)}</td>
@@ -365,9 +367,242 @@ async function loadProjects() {
       <td>${esc(x.lider)}</td>
       <td>${esc(x.grado)} · ${esc(x.salon)}</td>
       <td>${esc(x.estado)}</td>
+      <td>
+        <button
+          type="button"
+          class="btn btn-small"
+          data-project-code="${esc(x.codigo)}">
+          Evaluar
+        </button>
+      </td>
     </tr>`
   ).join("") ||
-  '<tr><td colspan="6">No hay proyectos registrados.</td></tr>';
+  '<tr><td colspan="7">No hay proyectos registrados.</td></tr>';
+                 }
+/* ==========================================
+   DETALLE Y EVALUACIÓN INDIVIDUAL
+   ========================================== */
+
+function projectModal() {
+  let modal = $("projectEvaluationModal");
+
+  if (modal) return modal;
+
+  modal = document.createElement("div");
+  modal.id = "projectEvaluationModal";
+
+  modal.style.cssText = `
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    background:rgba(0,0,0,.65);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    overflow-y:auto;
+  `;
+
+  modal.innerHTML = `
+    <section style="
+      background:white;
+      width:100%;
+      max-width:680px;
+      max-height:90vh;
+      overflow-y:auto;
+      border-radius:14px;
+      padding:24px;
+      color:#243247;
+    ">
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+      ">
+        <h2 style="margin:0">Evaluación del proyecto</h2>
+
+        <button
+          type="button"
+          id="closeProjectModal"
+          aria-label="Cerrar"
+          style="font-size:24px;border:0;background:none;cursor:pointer">
+          ×
+        </button>
+      </div>
+
+      <div id="projectDetails" style="margin-top:20px"></div>
+
+      <form id="projectEvaluationForm">
+        <input type="hidden" id="evaluationCode">
+
+        <label for="evaluationStatus">Estado del proyecto</label>
+
+        <select
+          id="evaluationStatus"
+          required
+          style="width:100%;padding:11px;margin:8px 0 16px">
+          <option value="Recibido">Recibido</option>
+          <option value="En revisión">En revisión</option>
+          <option value="Seleccionado">Seleccionado</option>
+          <option value="No seleccionado">No seleccionado</option>
+          <option value="Retirado">Retirado</option>
+        </select>
+
+        <label for="evaluationObservations">Observaciones del comité</label>
+
+        <textarea
+          id="evaluationObservations"
+          rows="5"
+          maxlength="3000"
+          style="width:100%;padding:11px;margin:8px 0 16px"
+          placeholder="Escribe las observaciones correspondientes..."></textarea>
+
+        <label style="display:flex;align-items:center;gap:9px">
+          <input type="checkbox" id="evaluationNotify" checked>
+          Notificar el cambio al correo del participante
+        </label>
+
+        <p id="evaluationMessage" role="status"></p>
+
+        <div style="
+          display:flex;
+          justify-content:flex-end;
+          gap:10px;
+          margin-top:18px;
+        ">
+          <button type="button" id="cancelProjectEvaluation">
+            Cancelar
+          </button>
+
+          <button type="submit" id="saveProjectEvaluation">
+            Guardar evaluación
+          </button>
+        </div>
+      </form>
+    </section>
+  `;
+
+  document.body.appendChild(modal);
+
+  $("closeProjectModal").addEventListener("click", closeProjectModal);
+  $("cancelProjectEvaluation").addEventListener("click", closeProjectModal);
+
+  modal.addEventListener("click", e => {
+    if (e.target === modal) closeProjectModal();
+  });
+
+  $("projectEvaluationForm").addEventListener("submit", saveProjectEvaluation);
+
+  return modal;
+}
+
+function closeProjectModal() {
+  const modal = $("projectEvaluationModal");
+  if (modal) modal.style.display = "none";
+}
+
+async function openProjectEvaluation(code) {
+  try {
+    const d = await call("listar");
+
+    if (!d.ok) {
+      throw new Error(d.error || "No se pudieron consultar los proyectos.");
+    }
+
+    const project = (d.proyectos || []).find(
+      x => String(x.codigo) === String(code)
+    );
+
+    if (!project) {
+      throw new Error("No se encontró el proyecto seleccionado.");
+    }
+
+    projectModal();
+
+    $("evaluationCode").value = project.codigo;
+    $("evaluationStatus").value = project.estado || "Recibido";
+    $("evaluationObservations").value = project.observaciones || "";
+
+    $("projectDetails").innerHTML = `
+      <div style="
+        background:#f3f6fa;
+        padding:16px;
+        border-radius:10px;
+        line-height:1.8;
+      ">
+        <p><b>Código:</b> ${esc(project.codigo)}</p>
+        <p><b>Título:</b> ${esc(project.titulo)}</p>
+        <p><b>Área:</b> ${esc(project.area)}</p>
+        <p><b>Líder:</b> ${esc(project.lider)}</p>
+        <p><b>Grado y salón:</b>
+          ${esc(project.grado)} · ${esc(project.salon)}
+        </p>
+        <p><b>Asesor:</b> ${esc(project.asesor || "No disponible")}</p>
+        <p><b>Correo:</b> ${esc(project.correo || "No disponible")}</p>
+        <p><b>Tipo:</b> ${esc(project.tipo || "No especificado")}</p>
+        <p><b>Estado actual:</b> ${esc(project.estado)}</p>
+      </div>
+    `;
+
+    $("evaluationMessage").textContent = "";
+    $("projectEvaluationModal").style.display = "flex";
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+/* Abrir evaluación desde la tabla */
+
+$("projectsBody").addEventListener("click", e => {
+  const button = e.target.closest("[data-project-code]");
+
+  if (!button) return;
+
+  openProjectEvaluation(button.dataset.projectCode);
+});
+
+/* Guardar evaluación */
+
+async function saveProjectEvaluation(e) {
+  e.preventDefault();
+
+  const button = $("saveProjectEvaluation");
+  const messageElement = $("evaluationMessage");
+
+  button.disabled = true;
+  button.textContent = "Guardando...";
+  messageElement.textContent = "";
+
+  try {
+    const d = await call("actualizar", {
+      codigo: $("evaluationCode").value,
+      estado: $("evaluationStatus").value,
+      observaciones: $("evaluationObservations").value,
+      notificar: $("evaluationNotify").checked
+    });
+
+    if (!d.ok) {
+      throw new Error(d.error || "No se pudo guardar la evaluación.");
+    }
+
+    messageElement.textContent = d.notificado
+      ? "Evaluación guardada y participante notificado."
+      : "Evaluación guardada correctamente.";
+
+    await loadProjects();
+
+    setTimeout(closeProjectModal, 1200);
+
+  } catch (error) {
+    messageElement.textContent = error.message;
+    messageElement.classList.add("error");
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Guardar evaluación";
+  }
 }
 
 /* ==========================================
