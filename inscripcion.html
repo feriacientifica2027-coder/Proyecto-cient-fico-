@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b35">
+  <meta name="description" content="Formulario oficial de inscripción de proyectos para la Feria Científica 2027 del Instituto Benigno Jiménez Garay.">
+  <title>Inscripción | Feria Científica 2027</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="brand-mark">FC<span>27</span></div>
+
+    <div>
+      <p class="eyebrow" data-site="institucion">
+        Instituto Benigno Jiménez Garay
+      </p>
+      <h1 data-site="titulo">Feria Científica 2027</h1>
+    </div>
+
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="consulta.html">Consultar proyecto</a>
+      <a href="admin.html">Administración</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container main-layout">
+
+  <section class="intro">
+    <p class="eyebrow">Convocatoria estudiantil</p>
+
+    <h2 data-site="subtitulo">
+      Inscripción de proyectos científicos
+    </h2>
+
+    <p data-site="descripcion">
+      Completa la información del equipo y adjunta el anteproyecto.
+      Los campos marcados con * son obligatorios.
+    </p>
+
+    <div class="notice">
+      <strong>Fecha de cierre:</strong>
+      <span data-site="fecha">20 de abril de 2027</span>.
+
+      <span data-site="aviso">
+        El código se asignará automáticamente según el área temática.
+      </span>
+    </div>
+  </section>
+
+  <form id="registroForm" class="panel" novalidate>
+
+    <div class="section-heading">
+      <span>01</span>
+      <div>
+        <h3>Área temática</h3>
+        <p>Selecciona el área principal de tu investigación.</p>
+      </div>
+    </div>
+
+    <div id="areas" class="area-grid"></div>
+    <input type="hidden" id="area" name="area" required>
+
+    <div class="section-heading">
+      <span>02</span>
+      <div>
+        <h3>Información del proyecto</h3>
+        <p>Describe brevemente la propuesta.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <label class="full">
+        Título del proyecto *
+        <input
+          name="titulo"
+          maxlength="180"
+          required
+          placeholder="Escribe el título completo">
+      </label>
+
+      <label>
+        Tipo de proyecto *
+        <select name="tipo" required>
+          <option value="">Seleccionar</option>
+          <option>Experimental</option>
+          <option>Investigativo</option>
+        </select>
+      </label>
+
+      <label>
+        Turno *
+        <select name="turno" required>
+          <option value="">Seleccionar</option>
+          <option>Matutino</option>
+          <option>Vespertino</option>
+        </select>
+      </label>
+
+      <label>
+        ¿Requiere laboratorio? *
+        <select name="laboratorio" required>
+          <option value="">Seleccionar</option>
+          <option>Sí</option>
+          <option>No</option>
+        </select>
+      </label>
+
+      <label class="full">
+        Resumen (máximo 250 palabras) *
+        <textarea
+          name="resumen"
+          id="resumen"
+          rows="5"
+          required
+          placeholder="Presenta el propósito, método y alcance de la investigación."></textarea>
+        <small>
+          <span id="wordCount">0</span>/250 palabras
+        </small>
+      </label>
+
+    </div>
+
+    <div class="section-heading">
+      <span>03</span>
+      <div>
+        <h3>Líder del equipo</h3>
+        <p>Datos de contacto y ubicación académica.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+
+      <label>
+        Nombre completo *
+        <input name="lider" required maxlength="120">
+      </label>
+
+      <label>
+        Correo electrónico *
+        <input type="email" name="correo" required>
+      </label>
+
+      <label>
+        Confirmar correo *
+        <input
+          type="email"
+          id="correoConfirmacion"
+          required>
+      </label>
+
+      <label>
+        Grado *
+        <select name="grado" required>
+          <option value="">Seleccionar</option>
+          <option>7.º</option>
+          <option>8.º</option>
+          <option>9.º</option>
+          <option>10.º</option>
+          <option>11.º</option>
+          <option>12.º</option>
+        </select>
+      </label>
+
+      <label>
+        Salón *
+        <input
+          name="salon"
+          required
+          maxlength="30"
+          placeholder="Ej. 42">
+      </label>
+
+    </div>
+
+    <div class="section-heading">
+      <span>04</span>
+      <div>
+        <h3>Integrantes adicionales</h3>
+        <p>Escribe los nombres de los demás integrantes, si corresponde.</p>
+      </div>
+    </div>
+
+    <label class="full">
+      Otros integrantes (uno por línea)
+      <textarea
+        name="integrantes"
+        rows="3"
+        placeholder="Nombre completo de cada integrante"></textarea>
+    </label>
+
+    <div class="section-heading">
+      <span>05</span>
+      <div>
+        <h3>Docente asesor</h3>
+        <p>Información del docente responsable.</p>
+      </div>
+    </div>
+
+    <label class="full">
+      Nombre del docente asesor *
+      <input name="asesor" required maxlength="120">
+    </label>
+
+    <div class="section-heading">
+      <span>06</span>
+      <div>
+        <h3>Anteproyecto</h3>
+        <p>Adjunta el documento para revisión.</p>
+      </div>
+    </div>
+
+    <label class="upload full">
+      Archivo del anteproyecto *
+      <input
+        type="file"
+        id="archivo"
+        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        required>
+      <small>
+        Formatos permitidos: PDF, DOC o DOCX. Máximo 20 MB.
+      </small>
+    </label>
+
+    <label class="check full">
+      <input type="checkbox" id="declaracion" required>
+      Declaro que la información proporcionada es correcta y que
+      el proyecto corresponde al trabajo del equipo.
+    </label>
+
+    <div
+      id="formMessage"
+      class="message"
+      role="status"
+      aria-live="polite">
+    </div>
+
+    <button
+      class="button primary full"
+      id="submitBtn"
+      type="submit">
+      Enviar inscripción
+    </button>
+
+    <p class="fine-print">
+      Al enviar, se registrarán los datos y el anteproyecto
+      para el proceso de organización de la Feria Científica 2027.
+    </p>
+
+  </form>
+</main>
+
+<footer>
+  <div class="container">
+    Feria Científica 2027 · Instituto Benigno Jiménez Garay
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/registro.js"></script>
+<script src="js/publico.js"></script>
+
+<div id="convocatoriaModal" class="convocatoria-modal">
+  <div class="convocatoria-contenido">
+
+    <button
+      type="button"
+      id="cerrarConvocatoria"
+      class="convocatoria-cerrar"
+      aria-label="Cerrar convocatoria">
+      &times;
+    </button>
+
+    <img
+      id="imagenConvocatoria"
+      src="file_00000000cbe081f98ef02e19d0d15d99.png"
+      alt="Convocatoria de la Feria Científica 2027">
+
+  </div>
+</div>
+
+<button
+  type="button"
+  id="abrirConvocatoria"
+  class="boton-ver-convocatoria">
+  Ver convocatoria
+</button>
+
+<script src="js/convocatoria.js"></script>
+
+</body>
+</html>
