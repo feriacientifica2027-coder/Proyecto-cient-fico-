@@ -1,1 +1,9 @@
-window.FERIA_API_URL = "https://script.google.com/macros/s/AKfycbwBuJxRkYO_ZvkxwGjGDGq1C3w7dVSgG0bWJfEidTodK9ryHaY2h7-8cHTYqB10dndViw/exec";
+
+/**
+ * FERIA CIENTÍFICA 2027
+ * Configuración central de conexión
+ * Instituto Benigno Jiménez Garay
+ */
+
+window.FERIA_API_URL =
+  "https://script.google.com/macros/s/AKfycbyq_R7Ioz8meYWXZbRD5vkUtn5it0b14M06ZspPB6YI_oCqMGJlrs5jbPMsWQkFzeZQXg/exec";
