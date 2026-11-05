@@ -4,214 +4,521 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123b35">
-  <title>Feria Científica 2027 | Inscripción</title>
+  <meta name="theme-color" content="#17365d">
+  <meta name="description" content="Portal oficial de la Feria Científica 2027 del Instituto Benigno Jiménez Garay.">
+  <title>Feria Científica 2027 | Instituto Benigno Jiménez Garay</title>
   <link rel="stylesheet" href="css/estilos.css">
+
+  <style>
+    .portal-hero {
+      padding: 65px 45px;
+      background: linear-gradient(115deg, #17365d, #244b75);
+      color: white;
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portal-hero .eyebrow {
+      color: #f1b5ba;
+    }
+
+    .portal-hero h2 {
+      max-width: 720px;
+      margin: 12px 0;
+      color: white;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.12;
+    }
+
+    .portal-hero p {
+      max-width: 650px;
+      color: #e4ebf4;
+      font-size: 16px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .hero-actions .button.primary {
+      color: #17365d;
+      background: white;
+      border-color: white;
+    }
+
+    .hero-actions .button.secondary {
+      color: white;
+      background: transparent;
+      border-color: rgba(255,255,255,.6);
+    }
+
+    .portal-section {
+      margin-top: 55px;
+    }
+
+    .portal-heading {
+      max-width: 700px;
+      margin-bottom: 25px;
+    }
+
+    .portal-heading h2 {
+      margin: 5px 0 10px;
+      color: var(--azul);
+      font-size: clamp(24px, 3vw, 32px);
+      line-height: 1.2;
+    }
+
+    .portal-heading p {
+      color: #66758a;
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .portal-card {
+      padding: 22px;
+      background: white;
+      border: 1px solid var(--gris);
+      border-radius: 12px;
+      box-shadow: var(--sombra);
+    }
+
+    .portal-card .number {
+      color: var(--rojo);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .portal-card h3 {
+      margin: 9px 0;
+      color: var(--azul);
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .portal-card p {
+      margin: 0;
+      color: #69778a;
+      font-size: 13px;
+    }
+
+    .portal-about {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 25px;
+      align-items: center;
+      padding: 30px;
+      background: white;
+      border: 1px solid var(--gris);
+      border-radius: 12px;
+      box-shadow: var(--sombra);
+    }
+
+    .portal-about h2 {
+      color: var(--azul);
+      font-size: 27px;
+      line-height: 1.2;
+    }
+
+    .portal-about p {
+      color: #66758a;
+    }
+
+    .poster-frame {
+      padding: 12px;
+      background: #f3f5f8;
+      border: 1px solid var(--gris);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .poster-frame img {
+      display: block;
+      width: 100%;
+      max-height: 370px;
+      object-fit: contain;
+      border-radius: 7px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .gallery-placeholder {
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #66758a;
+      background: #eaf0f6;
+      border: 1px dashed #aebac8;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .gallery-placeholder strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--azul);
+    }
+
+    .activity-panel {
+      padding: 28px;
+      background: white;
+      border-left: 5px solid var(--rojo);
+      border-radius: 10px;
+      box-shadow: var(--sombra);
+    }
+
+    .activity-panel h3 {
+      margin-top: 0;
+      color: var(--azul);
+    }
+
+    .portal-cta {
+      margin-top: 55px;
+      padding: 35px;
+      color: white;
+      background: var(--azul-oscuro);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .portal-cta h2 {
+      margin-top: 0;
+      color: white;
+    }
+
+    .portal-cta p {
+      color: #dce5ef;
+    }
+
+    .portal-cta .button {
+      margin-top: 10px;
+    }
+
+    @media (max-width: 850px) {
+      .portal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .portal-about {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .portal-hero {
+        padding: 35px 22px;
+      }
+
+      .portal-grid,
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .portal-about,
+      .portal-cta {
+        padding: 22px;
+      }
+
+      .portal-section {
+        margin-top: 38px;
+      }
+    }
+  </style>
 </head>
+
 <body>
+
 <header class="site-header">
   <div class="container header-inner">
+
     <div class="brand-mark">FC<span>27</span></div>
+
     <div>
-      <p class="eyebrow" data-site="institucion">Instituto Benigno Jiménez Garay</p>
+      <p class="eyebrow" data-site="institucion">
+        Instituto Benigno Jiménez Garay
+      </p>
       <h1 data-site="titulo">Feria Científica 2027</h1>
     </div>
+
     <nav>
-      <a href="consulta.html">Consultar proyecto</a>
+      <a href="#inicio">Inicio</a>
+      <a href="#areas">Áreas científicas</a>
+      <a href="#galeria">Galería</a>
+      <a href="consulta.html">Consultar</a>
       <a href="admin.html">Administración</a>
     </nav>
+
   </div>
 </header>
 
-<main class="container main-layout">
-  <section class="intro">
-    <p class="eyebrow">Convocatoria estudiantil</p>
-    <h2 data-site="subtitulo">Inscripción de proyectos científicos</h2>
-    <p data-site="descripcion">Completa la información del equipo y adjunta el anteproyecto. Los campos marcados con * son obligatorios.</p>
-    <div class="notice">
-      <strong>Fecha de cierre:</strong> <span data-site="fecha">20 de abril de 2027</span>.
-      <span data-site="aviso">El código se asignará automáticamente según el área temática.</span>
+<main class="container">
+
+  <!-- PRESENTACIÓN PRINCIPAL -->
+
+  <section class="portal-hero" id="inicio">
+
+    <p class="eyebrow">Instituto Benigno Jiménez Garay · 2027</p>
+
+    <h2 data-site="subtitulo">
+      La ciencia comienza con una pregunta
+    </h2>
+
+    <p data-site="descripcion">
+      Un espacio para investigar, experimentar, descubrir
+      y compartir el conocimiento científico.
+    </p>
+
+    <div class="hero-actions">
+      <a href="inscripcion.html" class="button primary">
+        Inscribir un proyecto
+      </a>
+
+      <a href="#areas" class="button secondary">
+        Conocer las áreas científicas
+      </a>
     </div>
+
   </section>
 
-  <form id="registroForm" class="panel" novalidate>
-    <div class="section-heading">
-      <span>01</span>
+  <!-- CONVOCATORIA -->
+
+  <section class="portal-section" id="convocatoria">
+
+    <div class="portal-about">
+
       <div>
-        <h3>Área temática</h3>
-        <p>Selecciona el área principal de tu investigación.</p>
+        <p class="eyebrow">Convocatoria oficial</p>
+
+        <h2>Participa en la Feria Científica 2027</h2>
+
+        <p>
+          Invitamos a los estudiantes a presentar proyectos
+          de investigación, experimentación e innovación
+          dentro de las distintas áreas del conocimiento.
+        </p>
+
+        <div class="notice">
+          <strong>Fecha límite de inscripción</strong>
+          <span data-site="fecha">20 de abril de 2027</span>
+          <span data-site="aviso">
+            Consulta las indicaciones antes de registrar tu proyecto.
+          </span>
+        </div>
+
+        <a href="inscripcion.html" class="button primary">
+          Ir al formulario de inscripción
+        </a>
       </div>
-    </div>
-    <div id="areas" class="area-grid"></div>
-    <input type="hidden" id="area" name="area" required>
 
-    <div class="section-heading">
-      <span>02</span>
-      <div>
-        <h3>Información del proyecto</h3>
-        <p>Describe brevemente la propuesta.</p>
+      <div class="poster-frame">
+        <img
+          src="file_00000000cbe081f98ef02e19d0d15d99.png"
+          alt="Cartel oficial de la Feria Científica 2027">
       </div>
+
     </div>
 
-    <div class="form-grid">
-      <label class="full">Título del proyecto *
-        <input name="titulo" maxlength="180" required placeholder="Escribe el título completo">
-      </label>
+  </section>
 
-      <label>Tipo de proyecto *
-        <select name="tipo" required>
-          <option value="">Seleccionar</option>
-          <option>Experimental</option>
-          <option>Investigativo</option>
-        </select>
-      </label>
+  <!-- ÁREAS CIENTÍFICAS -->
 
-      <label>Turno *
-        <select name="turno" required>
-          <option value="">Seleccionar</option>
-          <option>Matutino</option>
-          <option>Vespertino</option>
-        </select>
-      </label>
+  <section class="portal-section" id="areas">
 
-      <label>¿Requiere laboratorio? *
-        <select name="laboratorio" required>
-          <option value="">Seleccionar</option>
-          <option>Sí</option>
-          <option>No</option>
-        </select>
-      </label>
-
-      <label class="full">Resumen (máximo 250 palabras) *
-        <textarea name="resumen" id="resumen" rows="5" required placeholder="Presenta el propósito, método y alcance de la investigación."></textarea>
-        <small><span id="wordCount">0</span>/250 palabras</small>
-      </label>
+    <div class="portal-heading">
+      <p class="eyebrow">Campos de investigación</p>
+      <h2>Áreas científicas</h2>
+      <p>
+        La feria reúne distintas disciplinas para fomentar
+        la investigación y el pensamiento científico.
+      </p>
     </div>
 
-    <div class="section-heading">
-      <span>03</span>
-      <div>
-        <h3>Líder del equipo</h3>
-        <p>Datos de contacto y ubicación académica.</p>
+    <div class="portal-grid">
+
+      <article class="portal-card">
+        <span class="number">01</span>
+        <h3>Biología</h3>
+        <p>
+          Estudio de los seres vivos, sus estructuras,
+          funciones, procesos y relaciones.
+        </p>
+      </article>
+
+      <article class="portal-card">
+        <span class="number">02</span>
+        <h3>Ciencias Ambientales</h3>
+        <p>
+          Investigación de los ecosistemas, el ambiente,
+          la sostenibilidad y los recursos naturales.
+        </p>
+      </article>
+
+      <article class="portal-card">
+        <span class="number">03</span>
+        <h3>Ciencias de la Computación</h3>
+        <p>
+          Programación, sistemas informáticos,
+          procesamiento de datos y computación.
+        </p>
+      </article>
+
+      <article class="portal-card">
+        <span class="number">04</span>
+        <h3>Ciencias Sociales y del Comportamiento</h3>
+        <p>
+          Estudio de la sociedad, las relaciones humanas
+          y el comportamiento.
+        </p>
+      </article>
+
+      <article class="portal-card">
+        <span class="number">05</span>
+        <h3>Física y Matemática</h3>
+        <p>
+          Análisis de fenómenos físicos, modelos,
+          cálculos y principios matemáticos.
+        </p>
+      </article>
+
+      <article class="portal-card">
+        <span class="number">06</span>
+        <h3>Ingeniería y Tecnología</h3>
+        <p>
+          Investigación de procesos, sistemas,
+          diseño y desarrollo tecnológico.
+        </p>
+      </article>
+
+      <article class="portal-card">
+        <span class="number">07</span>
+        <h3>Química</h3>
+        <p>
+          Estudio de la materia, su composición,
+          propiedades y transformaciones.
+        </p>
+      </article>
+
+      <article class="portal-card">
+        <span class="number">08</span>
+        <h3>Salud y Medicina</h3>
+        <p>
+          Investigación científica relacionada con
+          la salud, la prevención y las ciencias médicas.
+        </p>
+      </article>
+
+    </div>
+
+  </section>
+
+  <!-- GALERÍA -->
+
+  <section class="portal-section" id="galeria">
+
+    <div class="portal-heading">
+      <p class="eyebrow">Memoria institucional</p>
+      <h2>Galería de la feria</h2>
+      <p>
+        Fotografías de actividades, exposiciones,
+        experiencias científicas y participación estudiantil.
+      </p>
+    </div>
+
+    <div class="gallery-grid">
+
+      <div class="gallery-placeholder">
+        <strong>Exposiciones científicas</strong>
+        <span>Espacio para fotografías y descripción de actividades.</span>
       </div>
-    </div>
 
-    <div class="form-grid">
-      <label>Nombre completo *
-        <input name="lider" required maxlength="120">
-      </label>
-
-      <label>Correo electrónico *
-        <input type="email" name="correo" required>
-      </label>
-
-      <label>Confirmar correo *
-        <input type="email" id="correoConfirmacion" required>
-      </label>
-
-      <label>Grado *
-        <select name="grado" required>
-          <option value="">Seleccionar</option>
-          <option>7.º</option>
-          <option>8.º</option>
-          <option>9.º</option>
-          <option>10.º</option>
-          <option>11.º</option>
-          <option>12.º</option>
-        </select>
-      </label>
-
-      <label>Salón *
-        <input name="salon" required maxlength="30" placeholder="Ej. 42">
-      </label>
-    </div>
-
-    <div class="section-heading">
-      <span>04</span>
-      <div>
-        <h3>Integrantes adicionales</h3>
-        <p>Escribe los nombres de los demás integrantes, si corresponde.</p>
+      <div class="gallery-placeholder">
+        <strong>Proyectos estudiantiles</strong>
+        <span>Espacio para fotografías de investigaciones y experimentos.</span>
       </div>
-    </div>
 
-    <label class="full">Otros integrantes (uno por línea)
-      <textarea name="integrantes" rows="3" placeholder="Nombre completo de cada integrante"></textarea>
-    </label>
-
-    <div class="section-heading">
-      <span>05</span>
-      <div>
-        <h3>Docente asesor</h3>
-        <p>Información del docente responsable.</p>
+      <div class="gallery-placeholder">
+        <strong>Actividades institucionales</strong>
+        <span>Espacio para fotografías de eventos y jornadas científicas.</span>
       </div>
+
     </div>
 
-    <label class="full">Nombre del docente asesor *
-      <input name="asesor" required maxlength="120">
-    </label>
+  </section>
 
-    <div class="section-heading">
-      <span>06</span>
-      <div>
-        <h3>Anteproyecto</h3>
-        <p>Adjunta el documento para revisión.</p>
-      </div>
+  <!-- NOTICIAS Y ACTIVIDADES -->
+
+  <section class="portal-section" id="actividades">
+
+    <div class="portal-heading">
+      <p class="eyebrow">Información institucional</p>
+      <h2>Noticias y actividades</h2>
+      <p>
+        Comunicados y novedades relacionadas con
+        la organización de la Feria Científica 2027.
+      </p>
     </div>
 
-    <label class="upload full">Archivo del anteproyecto *
-      <input type="file" id="archivo" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
-      <small>Formatos permitidos: PDF, DOC o DOCX. Máximo 20 MB.</small>
-    </label>
+    <div class="activity-panel">
+      <h3>Próximamente</h3>
+      <p>
+        En este espacio se publicarán noticias,
+        fechas importantes, actividades y comunicados
+        oficiales de la feria.
+      </p>
+    </div>
 
-    <label class="check full">
-      <input type="checkbox" id="declaracion" required>
-      Declaro que la información proporcionada es correcta y que el proyecto corresponde al trabajo del equipo.
-    </label>
+  </section>
 
-    <div id="formMessage" class="message" role="status" aria-live="polite"></div>
+  <!-- INFORMACIÓN FINAL -->
 
-    <button class="button primary full" id="submitBtn" type="submit">
-      Enviar inscripción
-    </button>
+  <section class="portal-cta">
 
-    <p class="fine-print">
-      Al enviar, se registrarán los datos y el anteproyecto para el proceso de organización de la Feria Científica 2027.
+    <h2>¿Tienes una idea para investigar?</h2>
+
+    <p>
+      Convierte tus preguntas en proyectos y participa
+      en la Feria Científica 2027.
     </p>
-  </form>
+
+    <a href="inscripcion.html" class="button primary">
+      Registrar proyecto
+    </a>
+
+    <a href="consulta.html" class="button secondary">
+      Consultar inscripción
+    </a>
+
+  </section>
+
 </main>
 
 <footer>
-  <div class="container">Feria Científica 2027 · Instituto Benigno Jiménez Garay</div>
+  <div class="container">
+    Feria Científica 2027 · Instituto Benigno Jiménez Garay
+  </div>
 </footer>
 
 <script src="js/config.js"></script>
-<script src="js/registro.js"></script>
 <script src="js/publico.js"></script>
-  <!-- Ventana emergente de la convocatoria -->
-<div id="convocatoriaModal" class="convocatoria-modal">
-    <div class="convocatoria-contenido">
-        <button
-            type="button"
-            id="cerrarConvocatoria"
-            class="convocatoria-cerrar"
-            aria-label="Cerrar convocatoria">
-            &times;
-        </button>
 
-        <img
-            id="imagenConvocatoria"
-            src="https://raw.githubusercontent.com/feriacientifica2027-coder/Proyecto-cient-fico-2027/9deed8e796db35ba2ff01e747b571dc8d1014ddc/file_00000000cbe081f98ef02e19d0d15d99.png"
-            alt="Convocatoria de la Feria Científica 2027">
-    </div>
-</div>
-
-<button
-    type="button"
-    id="abrirConvocatoria"
-    class="boton-ver-convocatoria">
-    Ver convocatoria
-</button>
-
-<script src="js/convocatoria.js"></script>
 </body>
 </html>
