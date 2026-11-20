@@ -538,3 +538,202 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ACCESO Y CAMBIO OBLIGATORIO DE CREDENCIALES */
+
+.admin-body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(198, 173, 131, .18), transparent 30%),
+    #EDE8DA;
+}
+
+.login-card {
+  padding: 30px;
+  border: 1px solid #DED8C9;
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(25, 77, 59, .09);
+}
+
+.login-card h1 {
+  color: #194D3B;
+  font-size: clamp(1.65rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+.login-card > p:not(.eyebrow) {
+  margin: -10px 0 20px;
+  color: #6F7C73;
+  font-size: .92rem;
+}
+
+.login-card form {
+  display: grid;
+  gap: 15px;
+}
+
+.login-card label {
+  display: grid;
+  gap: 7px;
+  color: #263B31;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.login-card input {
+  min-height: 46px;
+}
+
+.login-card .button {
+  margin-top: 5px;
+}
+
+.login-card .message {
+  margin: 0;
+}
+
+.admin-topbar .brand-mark {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #194D3B;
+  color: #FFFFFF;
+  font-weight: 900;
+}
+
+.admin-topbar .button {
+  min-height: 36px;
+  padding: 7px 12px;
+  font-size: .82rem;
+}
+
+.admin-sidebar .hidden {
+  display: none !important;
+}
+
+/* MODAL DE EVALUACIÓN */
+
+.admin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  overflow-y: auto;
+  background: rgba(16, 35, 26, .68);
+}
+
+.admin-modal.open {
+  display: flex;
+}
+
+.admin-modal-card {
+  width: min(680px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 25px;
+  border: 1px solid #DED8C9;
+  border-radius: 13px;
+  background: #FFFFFF;
+  color: #263B31;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .24);
+}
+
+.admin-modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.admin-modal-heading h2 {
+  margin: 0;
+  color: #194D3B;
+}
+
+.admin-modal-heading button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 7px;
+  background: #F2F0E9;
+  color: #194D3B;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.project-details {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #E2DED2;
+  border-radius: 9px;
+  background: #F8F8F4;
+  line-height: 1.65;
+}
+
+.project-details p {
+  margin: 4px 0;
+}
+
+.admin-modal-card form {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-modal-card form > label:not(.inline-check) {
+  color: #263B31;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.admin-modal-card select,
+.admin-modal-card textarea {
+  margin-bottom: 8px;
+}
+
+.inline-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #44534A;
+  font-size: .88rem;
+}
+
+.inline-check input {
+  width: auto;
+  min-height: auto;
+  margin-top: 5px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+@media (max-width: 760px) {
+  .login-card {
+    margin: 28px auto;
+    padding: 23px;
+  }
+
+  .admin-modal-card {
+    padding: 19px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .button {
+    width: 100%;
+  }
+}
