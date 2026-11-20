@@ -4,184 +4,260 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#194D3B">
-  <meta name="description" content="Portal institucional de la Feria Científica del Instituto Benigno Jiménez Garay.">
+  <meta name="description" content="Feria Científica del Instituto Benigno Jiménez Garay">
   <title>Feria Científica | Instituto Benigno Jiménez Garay</title>
   <link rel="stylesheet" href="css/estilos.css">
+
   <style>
     .portal-hero {
       padding: clamp(32px, 6vw, 68px);
-      color: white;
+      color: #fff;
       background: linear-gradient(120deg, #194D3B, #34745A);
       border-radius: 16px;
-      overflow: hidden;
     }
-    .portal-hero .eyebrow { color: #E5D4B6; }
+
     .portal-hero h2 {
       max-width: 760px;
-      margin: 12px 0;
-      color: white;
+      color: #fff;
       font-size: clamp(32px, 5vw, 52px);
       line-height: 1.12;
     }
-    .portal-hero p { max-width: 680px; color: #F1F4EF; }
-    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:25px; }
-    .hero-actions .button.primary { color:#194D3B; background:white; border-color:white; }
-    .hero-actions .button.secondary { color:white; background:transparent; border-color:#ffffff99; }
-    .portal-section { margin-top:48px; }
-    .portal-heading { max-width:720px; margin-bottom:22px; }
-    .portal-heading h2 { color:#194D3B; }
-    .portal-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
-    .portal-card {
-      padding:22px; background:white; border:1px solid #DED8C9;
-      border-radius:12px; box-shadow:0 8px 28px #194D3B0D;
+
+    .portal-hero p {
+      max-width: 680px;
+      color: #f1f4ef;
     }
-    .portal-card .number { color:#34745A; font-weight:800; letter-spacing:1px; }
-    .portal-card h3 { margin:9px 0; color:#194D3B; font-size:17px; }
-    .portal-card p { margin:0; color:#657269; font-size:13px; }
+
+    .portal-hero .eyebrow {
+      color: #E5D4B6;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .hero-actions .primary {
+      background: #fff;
+      color: #194D3B;
+      border-color: #fff;
+    }
+
+    .hero-actions .secondary {
+      background: transparent;
+      color: #fff;
+      border-color: #ffffff99;
+    }
+
+    .portal-section {
+      margin-top: 42px;
+    }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .portal-card,
     .portal-announcement {
-      padding:28px; background:white; border:1px solid #DED8C9;
-      border-left:5px solid #C6AD83; border-radius:12px;
+      padding: 22px;
+      background: #fff;
+      border: 1px solid #DED8C9;
+      border-radius: 12px;
     }
-    .portal-announcement h2 { color:#194D3B; }
-    .announcement-date {
-      display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-      margin:20px 0; padding:15px; background:#EDE8DA; border-radius:9px;
+
+    .portal-card strong {
+      color: #34745A;
     }
-    .announcement-date strong { color:#194D3B; }
-    .announcement-date span { color:#34745A; font-weight:800; }
+
+    .portal-card h3,
+    .portal-announcement h2 {
+      color: #194D3B;
+    }
+
     .portal-cta {
-      margin-top:48px; padding:30px; color:white;
-      background:#194D3B; border-radius:14px; text-align:center;
+      margin-top: 42px;
+      padding: 30px;
+      text-align: center;
+      color: #fff;
+      background: #194D3B;
+      border-radius: 14px;
     }
-    .portal-cta h2 { color:white; }
-    .portal-cta p { color:#E8EEE9; }
-    @media(max-width:850px) {
-      .portal-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+
+    .portal-cta h2 {
+      color: #fff;
     }
-    @media(max-width:600px) {
-      .portal-grid { grid-template-columns:1fr; }
-      .portal-hero { padding:30px 22px; }
-      .portal-announcement,.portal-cta { padding:22px; }
+
+    .portal-cta p {
+      color: #e8eee9;
+    }
+
+    @media (max-width: 800px) {
+      .portal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .portal-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-mark">FC</div>
 
-<header class="site-header">
-  <div class="container header-inner">
-    <div class="brand-mark">FC</div>
-    <div>
-      <p class="eyebrow" data-site="institucion">Instituto Benigno Jiménez Garay</p>
-      <h1 data-site="titulo">Feria Científica</h1>
-    </div>
-    <nav>
-      <a href="#inicio">Inicio</a>
-      <a href="#areas">Áreas científicas</a>
-      <a href="consulta.html">Consultar proyecto</a>
-    </nav>
-  </div>
-</header>
-
-<main class="container">
-
-  <section class="portal-hero" id="inicio">
-    <p class="eyebrow">Investigación · Ciencia · Conocimiento</p>
-    <h2 data-site="subtitulo">La ciencia comienza con una pregunta</h2>
-    <p data-site="descripcion">
-      Un espacio institucional para investigar, experimentar,
-      descubrir y compartir el conocimiento científico.
-    </p>
-    <div class="hero-actions">
-      <a href="inscripcion.html" class="button primary">Inscribir un proyecto</a>
-      <a href="#areas" class="button secondary">Conocer las áreas científicas</a>
-    </div>
-  </section>
-
-  <section class="portal-section" id="convocatoria">
-    <div class="portal-announcement">
-      <p class="eyebrow">Convocatoria institucional</p>
-      <h2>Participa en la Feria Científica</h2>
-      <p>
-        Invitamos a los estudiantes a desarrollar y presentar
-        investigaciones dentro de las distintas áreas del conocimiento.
-        Consulta las indicaciones antes de completar la inscripción.
-      </p>
-      <div class="announcement-date">
-        <strong>Fecha límite de inscripción:</strong>
-        <span data-site="fecha">Por definir</span>
+      <div>
+        <p class="eyebrow" data-site="institucion">
+          Instituto Benigno Jiménez Garay
+        </p>
+        <h1 data-site="titulo">Feria Científica</h1>
       </div>
-      <p data-site="aviso">Consulta las indicaciones de la edición vigente.</p>
-      <a href="inscripcion.html" class="button primary">Ir al formulario de inscripción</a>
-    </div>
-  </section>
 
-  <section class="portal-section" id="areas">
-    <div class="portal-heading">
+      <nav>
+        <a href="#inicio">Inicio</a>
+        <a href="#areas">Áreas científicas</a>
+        <a href="consulta.html">Consultar proyecto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="portal-hero" id="inicio">
+      <p class="eyebrow">Investigación · Ciencia · Conocimiento</p>
+
+      <h2 data-site="subtitulo">
+        La ciencia comienza con una pregunta
+      </h2>
+
+      <p data-site="descripcion">
+        Un espacio institucional para investigar, experimentar,
+        descubrir y compartir el conocimiento científico.
+      </p>
+
+      <div class="hero-actions">
+        <a href="inscripcion.html" class="button primary">
+          Inscribir un proyecto
+        </a>
+
+        <a href="#areas" class="button secondary">
+          Conocer las áreas científicas
+        </a>
+      </div>
+    </section>
+
+    <section class="portal-section">
+      <div class="portal-announcement">
+        <p class="eyebrow">Convocatoria institucional</p>
+
+        <h2>Participa en la Feria Científica</h2>
+
+        <p>
+          Desarrolla y presenta investigaciones dentro de las distintas
+          áreas del conocimiento. Consulta las indicaciones antes de
+          completar tu inscripción.
+        </p>
+
+        <p>
+          <strong>Fecha límite:</strong>
+          <span data-site="fecha">Por definir</span>
+        </p>
+
+        <p data-site="aviso">
+          Consulta las indicaciones de la edición vigente.
+        </p>
+
+        <a href="inscripcion.html" class="button primary">
+          Ir al formulario de inscripción
+        </a>
+      </div>
+    </section>
+
+    <section class="portal-section" id="areas">
       <p class="eyebrow">Campos de investigación</p>
       <h2>Áreas científicas</h2>
-      <p>La feria reúne distintas disciplinas para fomentar la investigación y el pensamiento científico.</p>
+
+      <div class="portal-grid">
+        <article class="portal-card">
+          <strong>BIO</strong>
+          <h3>Biología</h3>
+          <p>Seres vivos, estructuras, funciones y procesos.</p>
+        </article>
+
+        <article class="portal-card">
+          <strong>CAM</strong>
+          <h3>Ciencias Ambientales</h3>
+          <p>Ecosistemas, ambiente y sostenibilidad.</p>
+        </article>
+
+        <article class="portal-card">
+          <strong>CCO</strong>
+          <h3>Ciencias de la Computación</h3>
+          <p>Computación, programación y análisis de datos.</p>
+        </article>
+
+        <article class="portal-card">
+          <strong>CSC</strong>
+          <h3>Ciencias Sociales y del Comportamiento</h3>
+          <p>Sociedad, educación, cultura y comportamiento.</p>
+        </article>
+
+        <article class="portal-card">
+          <strong>FMA</strong>
+          <h3>Física y Matemática</h3>
+          <p>Fenómenos físicos y modelos matemáticos.</p>
+        </article>
+
+        <article class="portal-card">
+          <strong>INY</strong>
+          <h3>Ingeniería y Tecnología</h3>
+          <p>Procesos, materiales y tecnología.</p>
+        </article>
+
+        <article class="portal-card">
+          <strong>QUI</strong>
+          <h3>Química</h3>
+          <p>Materia, propiedades y transformaciones.</p>
+        </article>
+
+        <article class="portal-card">
+          <strong>SYM</strong>
+          <h3>Salud y Medicina</h3>
+          <p>Salud, prevención e investigación biomédica.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="portal-cta">
+      <h2>¿Tienes una pregunta científica?</h2>
+
+      <p>
+        Conviértela en una investigación y forma parte de la feria institucional.
+      </p>
+
+      <a href="inscripcion.html" class="button primary">
+        Registrar anteproyecto
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Instituto Benigno Jiménez Garay · Feria Científica</p>
+      <p>
+        <a href="consulta.html">Consulta de proyectos</a>
+      </p>
     </div>
+  </footer>
 
-    <div class="portal-grid">
-      <article class="portal-card">
-        <span class="number">BIO</span>
-        <h3>Biología</h3>
-        <p>Estudio de los seres vivos, sus estructuras, funciones y procesos.</p>
-      </article>
-      <article class="portal-card">
-        <span class="number">CAM</span>
-        <h3>Ciencias Ambientales</h3>
-        <p>Ecosistemas, ambiente, sostenibilidad y recursos naturales.</p>
-      </article>
-      <article class="portal-card">
-        <span class="number">CCO</span>
-        <h3>Ciencias de la Computación</h3>
-        <p>Computación, programación, sistemas y análisis de datos.</p>
-      </article>
-      <article class="portal-card">
-        <span class="number">CSC</span>
-        <h3>Ciencias Sociales y del Comportamiento</h3>
-        <p>Sociedad, educación, cultura y comportamiento humano.</p>
-      </article>
-      <article class="portal-card">
-        <span class="number">FMA</span>
-        <h3>Física y Matemática</h3>
-        <p>Fenómenos físicos, modelos, relaciones y análisis matemático.</p>
-      </article>
-      <article class="portal-card">
-        <span class="number">INY</span>
-        <h3>Ingeniería y Tecnología</h3>
-        <p>Procesos, materiales, diseño e investigación tecnológica.</p>
-      </article>
-      <article class="portal-card">
-        <span class="number">QUI</span>
-        <h3>Química</h3>
-        <p>Materia, composición, propiedades y transformaciones químicas.</p>
-      </article>
-      <article class="portal-card">
-        <span class="number">SYM</span>
-        <h3>Salud y Medicina</h3>
-        <p>Salud, prevención, ciencias biomédicas e investigación médica.</p>
-      </article>
-    </div>
-  </section>
-
-  <section class="portal-cta">
-    <h2>¿Tienes una pregunta científica?</h2>
-    <p>Conviértela en una investigación y forma parte de la feria institucional.</p>
-    <a href="inscripcion.html" class="button primary">Registrar anteproyecto</a>
-  </section>
-
-</main>
-
-<footer>
-  <div class="container">
-    <p>Instituto Benigno Jiménez Garay · <span data-site="titulo">Feria Científica</span></p>
-    <p><a href="consulta.html">Consulta de proyectos</a></p>
-  </div>
-</footer>
-
-<script src="js/config.js"></script>
-<script src="js/publico.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/publico.js"></script>
 </body>
 </html>
