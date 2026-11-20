@@ -1,6 +1,5 @@
-
 /**
- * FERIA CIENTÍFICA 2027
+ * FERIA CIENTÍFICA
  * Carga del contenido público editable
  * Instituto Benigno Jiménez Garay
  */
@@ -9,6 +8,7 @@
   "use strict";
 
   const endpoint = window.FERIA_API_URL;
+  const edicion = window.FERIA_CONFIG?.EDICION || 2027;
 
   if (!endpoint) {
     console.warn("No se ha configurado la URL de la API.");
@@ -22,7 +22,8 @@
         "Content-Type": "text/plain;charset=utf-8"
       },
       body: JSON.stringify({
-        accion: "obtenerContenido"
+        accion: "obtenerContenido",
+        edicion
       })
     });
 
@@ -39,8 +40,13 @@
 
     const content = data.contenido;
 
-    // Actualización segura de textos
-    const setText = (selector, value) => {
+    function getContent(key) {
+      return content[key] ??
+        content[`PUBLICO_${key.toUpperCase()}`] ??
+        "";
+    }
+
+    function setText(selector, value) {
       const element = document.querySelector(selector);
 
       if (
@@ -50,26 +56,21 @@
       ) {
         element.textContent = value;
       }
-    };
+    }
 
-    setText('[data-site="titulo"]', content.titulo);
-    setText('[data-site="institucion"]', content.institucion);
-    setText('[data-site="subtitulo"]', content.subtitulo);
-    setText('[data-site="descripcion"]', content.descripcion);
-    setText('[data-site="aviso"]', content.aviso);
+    setText('[data-site="titulo"]', getContent("titulo"));
+    setText('[data-site="institucion"]', getContent("institucion"));
+    setText('[data-site="subtitulo"]', getContent("subtitulo"));
+    setText('[data-site="descripcion"]', getContent("descripcion"));
+    setText('[data-site="aviso"]', getContent("aviso"));
 
-    // Fecha de cierre
-    const dateElement = document.querySelector(
-      '[data-site="fecha"]'
-    );
+    /* FECHA DE CIERRE */
 
-    if (
-      dateElement &&
-      typeof content.fechaCierre === "string"
-    ) {
-      const match = content.fechaCierre.match(
-        /^(\d{4})-(\d{2})-(\d{2})$/
-      );
+    const dateElement = document.querySelector('[data-site="fecha"]');
+    const fecha = getContent("fechaCierre");
+
+    if (dateElement && typeof fecha === "string") {
+      const match = fecha.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 
       if (match) {
         const year = match[1];
@@ -89,25 +90,23 @@
       }
     }
 
-    // Colores institucionales
+    /* COLORES INSTITUCIONALES */
+
     const root = document.documentElement;
+    const primary = getContent("colorPrimario");
+    const secondary = getContent("colorSecundario");
 
-    if (/^#[0-9a-f]{6}$/i.test(content.colorPrimario || "")) {
-      root.style.setProperty(
-        "--azul",
-        content.colorPrimario
-      );
+    if (/^#[0-9a-f]{6}$/i.test(primary)) {
+      root.style.setProperty("--verde-institucional", primary);
     }
 
-    if (/^#[0-9a-f]{6}$/i.test(content.colorSecundario || "")) {
-      root.style.setProperty(
-        "--rojo",
-        content.colorSecundario
-      );
+    if (/^#[0-9a-f]{6}$/i.test(secondary)) {
+      root.style.setProperty("--verde-secundario", secondary);
     }
 
-    // Validación de direcciones de imágenes
-    const validImageUrl = (value) => {
+    /* VALIDACIÓN DE IMÁGENES */
+
+    function validImageUrl(value) {
       if (typeof value !== "string" || !value.trim()) {
         return null;
       }
@@ -126,10 +125,11 @@
       } catch {
         return null;
       }
-    };
+    }
 
-    // Logotipo institucional
-    const logoUrl = validImageUrl(content.logoUrl);
+    /* LOGOTIPO */
+
+    const logoUrl = validImageUrl(getContent("logoUrl"));
 
     if (logoUrl) {
       const mark = document.querySelector(".brand-mark");
@@ -142,16 +142,15 @@
         image.style.cssText =
           "max-width:100%;max-height:100%;object-fit:contain";
 
-        image.onerror = () => {
-          image.remove();
-        };
+        image.onerror = () => image.remove();
 
         mark.replaceChildren(image);
       }
     }
 
-    // Imagen de portada
-    const portadaUrl = validImageUrl(content.imagenPortada);
+    /* IMAGEN DE PORTADA */
+
+    const portadaUrl = validImageUrl(getContent("imagenPortada"));
 
     if (portadaUrl) {
       const portada =
