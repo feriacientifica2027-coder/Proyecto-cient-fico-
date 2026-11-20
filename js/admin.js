@@ -1,3 +1,5 @@
+"use strict";
+
 let token = "";
 let role = "";
 let edition = "2027";
@@ -39,8 +41,7 @@ async function call(accion, extra = {}) {
     throw new Error(`Error de conexión (${response.status}).`);
   }
 
-  const data = await response.json();
-  return data;
+  return await response.json();
 }
 
 function message(id, text, isError = false) {
@@ -52,9 +53,7 @@ function message(id, text, isError = false) {
   }
 }
 
-/* ==========================================
-   INICIO DE SESIÓN
-   ========================================== */
+/* INICIO DE SESIÓN */
 
 $("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -91,9 +90,7 @@ $("loginForm").addEventListener("submit", async e => {
   }
 });
 
-/* ==========================================
-   CERRAR SESIÓN
-   ========================================== */
+/* CERRAR SESIÓN */
 
 $("logoutBtn").addEventListener("click", async () => {
   try {
@@ -120,9 +117,7 @@ document.querySelectorAll(".nav-item[data-view]").forEach(btn => {
   btn.addEventListener("click", () => showView(btn.dataset.view));
 });
 
-/* ==========================================
-   EDICIONES
-   ========================================== */
+/* EDICIONES */
 
 async function loadEditions() {
   const d = await call("edicionesListar");
@@ -145,9 +140,7 @@ async function loadEditions() {
   edition = $("editionSelect").value || "2027";
 }
 
-/* ==========================================
-   VISTAS DEL PANEL
-   ========================================== */
+/* VISTAS DEL PANEL */
 
 const titles = {
   overview: [
@@ -162,25 +155,9 @@ const titles = {
     "Administrar ediciones",
     "Convocatorias independientes por año."
   ],
-  gallery: [
-    "Galería fotográfica",
-    "Gestión privada de imágenes y autorizaciones."
-  ],
-  photoStats: [
-    "Estadísticas de fotografías",
-    "Visualizaciones y descargas por edición."
-  ],
-  inventory: [
-    "Inventario de laboratorio",
-    "Materiales y equipos exclusivamente de laboratorio."
-  ],
   calendar: [
     "Calendario",
     "Fechas y actividades institucionales."
-  ],
-  requests: [
-    "Solicitudes",
-    "Trámites relacionados con los proyectos."
   ],
   documents: [
     "Expedientes y documentos",
@@ -198,6 +175,10 @@ const titles = {
     "Colaboradores",
     "Aportes no monetarios y compromisos."
   ],
+  communications: [
+    "Comunicados institucionales",
+    "Mensajes segmentados e historial de envíos."
+  ],
   users: [
     "Usuarios y permisos",
     "Cuentas administrativas y alcance por edición."
@@ -213,17 +194,14 @@ async function showView(name) {
     role !== "administrador" &&
     [
       "editions",
-      "gallery",
-      "photoStats",
-      "inventory",
       "calendar",
-      "requests",
       "documents",
       "credentials",
       "surveys",
       "partners",
       "users",
-      "content"
+      "content",
+      "communications"
     ].includes(name)
   ) {
     return;
@@ -257,20 +235,11 @@ async function loadView(name) {
   try {
     if (name === "overview") await loadOverview();
     if (name === "projects") await loadProjects();
+    if (name === "communications") await loadCommunications();
     if (name === "editions") await loadEditionsList();
-    if (name === "gallery") await loadGallery();
-    if (name === "photoStats") await loadPhotoStats();
-
-    if (name === "inventory") {
-      await loadModule("inventario_laboratorio", "inventoryList");
-    }
 
     if (name === "calendar") {
       await loadModule("calendario", "calendarList");
-    }
-
-    if (name === "requests") {
-      await loadModule("solicitudes", "requestsList");
     }
 
     if (name === "documents") {
@@ -294,9 +263,7 @@ async function loadView(name) {
   }
 }
 
-/* ==========================================
-   RESUMEN GENERAL
-   ========================================== */
+/* RESUMEN GENERAL */
 
 async function loadOverview() {
   const d = await call("panelResumen");
@@ -346,18 +313,32 @@ function renderBars(id, obj) {
     : '<p class="muted">Sin registros para esta edición.</p>';
 }
 
-/* ==========================================
-   PROYECTOS Y EVALUACIÓN
-   ========================================== */
+/* PROYECTOS Y EVALUACIÓN */
 
 async function loadProjects() {
-  const d = await call("listar");
+  const d = await call("listar", {
+    turno: $("projectTurnFilter")?.value || ""
+  });
 
   if (!d.ok) {
     throw new Error(d.error || "No se pudieron cargar los proyectos.");
   }
 
-  const projects = d.proyectos || [];
+  const projects = (d.proyectos || []).map(x => ({
+    codigo: x.Codigo,
+    area: x.Area,
+    titulo: x.Titulo,
+    lider: x.Lider,
+    grado: x.Grado,
+    salon: x.Salon,
+    estado: x.Estado,
+    correo: x.Correo,
+    tipo: x.Tipo,
+    turno: x.Turno,
+    asesor: x.Asesor,
+    observaciones: x.Observaciones,
+    edicion: x.Edicion
+  }));
 
   $("projectsBody").innerHTML = projects.map(x =>
     `<tr>
@@ -378,10 +359,9 @@ async function loadProjects() {
     </tr>`
   ).join("") ||
   '<tr><td colspan="7">No hay proyectos registrados.</td></tr>';
-                 }
-/* ==========================================
-   DETALLE Y EVALUACIÓN INDIVIDUAL
-   ========================================== */
+}
+
+/* DETALLE Y EVALUACIÓN INDIVIDUAL */
 
 function projectModal() {
   let modal = $("projectEvaluationModal");
@@ -443,7 +423,6 @@ function projectModal() {
           required
           style="width:100%;padding:11px;margin:8px 0 16px">
           <option value="Recibido">Recibido</option>
-          <option value="En revisión">En revisión</option>
           <option value="Seleccionado">Seleccionado</option>
           <option value="No seleccionado">No seleccionado</option>
           <option value="Retirado">Retirado</option>
@@ -492,7 +471,10 @@ function projectModal() {
     if (e.target === modal) closeProjectModal();
   });
 
-  $("projectEvaluationForm").addEventListener("submit", saveProjectEvaluation);
+  $("projectEvaluationForm").addEventListener(
+    "submit",
+    saveProjectEvaluation
+  );
 
   return modal;
 }
@@ -504,15 +486,33 @@ function closeProjectModal() {
 
 async function openProjectEvaluation(code) {
   try {
-    const d = await call("listar");
+    const d = await call("listar", {
+      turno: $("projectTurnFilter")?.value || ""
+    });
 
     if (!d.ok) {
       throw new Error(d.error || "No se pudieron consultar los proyectos.");
     }
 
-    const project = (d.proyectos || []).find(
-      x => String(x.codigo) === String(code)
+    const raw = (d.proyectos || []).find(
+      x => String(x.Codigo) === String(code)
     );
+
+    const project = raw ? {
+      codigo: raw.Codigo,
+      area: raw.Area,
+      titulo: raw.Titulo,
+      lider: raw.Lider,
+      grado: raw.Grado,
+      salon: raw.Salon,
+      estado: raw.Estado,
+      correo: raw.Correo,
+      tipo: raw.Tipo,
+      turno: raw.Turno,
+      asesor: raw.Asesor,
+      observaciones: raw.Observaciones,
+      edicion: raw.Edicion
+    } : null;
 
     if (!project) {
       throw new Error("No se encontró el proyecto seleccionado.");
@@ -553,8 +553,6 @@ async function openProjectEvaluation(code) {
   }
 }
 
-/* Abrir evaluación desde la tabla */
-
 $("projectsBody").addEventListener("click", e => {
   const button = e.target.closest("[data-project-code]");
 
@@ -563,7 +561,7 @@ $("projectsBody").addEventListener("click", e => {
   openProjectEvaluation(button.dataset.projectCode);
 });
 
-/* Guardar evaluación */
+/* GUARDAR EVALUACIÓN */
 
 async function saveProjectEvaluation(e) {
   e.preventDefault();
@@ -605,9 +603,7 @@ async function saveProjectEvaluation(e) {
   }
 }
 
-/* ==========================================
-   LISTA DE EDICIONES
-   ========================================== */
+/* LISTA DE EDICIONES */
 
 async function loadEditionsList() {
   const d = await call("edicionesListar");
@@ -653,211 +649,7 @@ $("editionForm").addEventListener("submit", async e => {
   }
 });
 
-/* ==========================================
-   GALERÍA FOTOGRÁFICA
-   ========================================== */
-
-async function loadGallery() {
-  const d = await call("moduloListar", {
-    modulo: "fotografias"
-  });
-
-  if (!d.ok) {
-    throw new Error(d.error);
-  }
-
-  $("photoList").innerHTML = (d.registros || []).map(x =>
-    `<article class="photo-card">
-      ${x.Url ? `<img src="${esc(x.Url)}" alt="">` : ""}
-      <div>
-        <b>${esc(x.Titulo)}</b>
-        <small>
-          ${
-            x.Publicada === true ||
-            String(x.Publicada) === "true"
-              ? "Publicada"
-              : "No publicada"
-          }
-          · ${Number(x.Visualizaciones) || 0} vistas
-        </small>
-      </div>
-    </article>`
-  ).join("") ||
-  '<p class="muted">No hay fotografías registradas.</p>';
-}
-
-$("photoForm").addEventListener("submit", async e => {
-  e.preventDefault();
-
-  try {
-    const d = await call("moduloGuardar", {
-      modulo: "fotografias",
-      datos: {
-        Titulo: $("photoTitle").value,
-        Url: $("photoUrl").value,
-        Descripcion: $("photoDescription").value,
-        MiniaturaUrl: $("photoThumb").value,
-        Autorizacion: $("photoConsent").checked ? "Sí" : "No",
-        Publicada: $("photoPublish").checked,
-        Visualizaciones: 0,
-        Descargas: 0,
-        Fecha: new Date().toISOString()
-      }
-    });
-
-    if (!d.ok) {
-      throw new Error(d.error);
-    }
-
-    message("photoMessage", "Fotografía registrada.");
-
-    $("photoForm").reset();
-
-    await loadGallery();
-
-  } catch (x) {
-    message("photoMessage", x.message, true);
-  }
-});
-
-/* ==========================================
-   ESTADÍSTICAS FOTOGRÁFICAS
-   ========================================== */
-
-async function loadPhotoStats() {
-  const d = await call("fotografiaEstadisticas");
-
-  if (!d.ok) {
-    throw new Error(d.error);
-  }
-
-  const r = d.resumen;
-
-  $("photoMetricCards").innerHTML = [
-    ["Fotografías", r.fotografias],
-    ["Publicadas", r.publicadas],
-    ["Visualizaciones", r.visualizaciones],
-    ["Descargas", r.descargas]
-  ].map(([a, b]) =>
-    `<article class="metric-card">
-      <span>${a}</span>
-      <b>${Number(b) || 0}</b>
-    </article>`
-  ).join("");
-
-  $("photoRanking").innerHTML = (d.porFotografia || []).map(x =>
-    `<tr>
-      <td>${esc(x.titulo)}</td>
-      <td>${x.visualizaciones}</td>
-      <td>${x.descargas}</td>
-    </tr>`
-  ).join("") ||
-  '<tr><td colspan="3">Todavía no hay visualizaciones.</td></tr>';
-
-  renderBars(
-    "photoDaily",
-    Object.fromEntries(
-      (d.porDia || []).map(x => [x.fecha, x.visualizaciones])
-    )
-  );
-}
-
-/* ==========================================
-   MÓDULOS GENERALES
-   ========================================== */
-
-async function loadModule(module, target) {
-  const d = await call("moduloListar", {
-    modulo: module
-  });
-
-  if (!d.ok) {
-    throw new Error(d.error);
-  }
-
-  const rows = d.registros || [];
-
-  $(target).innerHTML = rows.length
-    ? rows.map(x => {
-      const title =
-        x.Nombre ||
-        x.Titulo ||
-        x.Persona ||
-        x.Responsable ||
-        x.Tipo ||
-        x.DocumentoId ||
-        "Registro";
-
-      const sub =
-        x.Estado ||
-        x.FechaInicio ||
-        x.Fecha ||
-        x.Categoria ||
-        "";
-
-      return `<article class="list-row">
-        <b>${esc(title)}</b>
-        <span>${esc(sub)}</span>
-      </article>`;
-    }).join("")
-    : '<p class="muted">No hay registros en este módulo.</p>';
-}
-
-/* ==========================================
-   INVENTARIO DE LABORATORIO
-   ========================================== */
-
-$("inventoryForm").addEventListener("submit", async e => {
-  e.preventDefault();
-
-  try {
-    const total = Number($("invTotal").value);
-    const available = Number($("invAvailable").value);
-
-    if (available > total) {
-      throw new Error(
-        "La cantidad disponible no puede superar la cantidad total."
-      );
-    }
-
-    const d = await call("moduloGuardar", {
-      modulo: "inventario_laboratorio",
-      datos: {
-        Nombre: $("invName").value,
-        Categoria: $("invCategory").value,
-        CantidadTotal: total,
-        CantidadDisponible: available,
-        Ubicacion: $("invLocation").value,
-        Estado: $("invState").value,
-        Descripcion: $("invDescription").value,
-        Actualizado: new Date().toISOString()
-      }
-    });
-
-    if (!d.ok) {
-      throw new Error(d.error);
-    }
-
-    message(
-      "inventoryMessage",
-      "Material agregado al inventario."
-    );
-
-    $("inventoryForm").reset();
-
-    await loadModule(
-      "inventario_laboratorio",
-      "inventoryList"
-    );
-
-  } catch (x) {
-    message("inventoryMessage", x.message, true);
-  }
-});
-
-/* ==========================================
-   CALENDARIO
-   ========================================== */
+/* CALENDARIO */
 
 $("calendarForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -888,9 +680,7 @@ $("calendarForm").addEventListener("submit", async e => {
   }
 });
 
-/* ==========================================
-   USUARIOS Y PERMISOS
-   ========================================== */
+/* USUARIOS Y PERMISOS */
 
 $("userForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -919,3 +709,146 @@ $("userForm").addEventListener("submit", async e => {
     message("userMessage", x.message, true);
   }
 });
+
+/* COMUNICADOS INSTITUCIONALES */
+
+async function loadCommunications() {
+  const d = await call("comunicadosListar");
+
+  if (!d.ok) {
+    throw new Error(d.error || "No se pudo cargar el historial.");
+  }
+
+  const rows = d.comunicados || [];
+
+  $("communicationsList").innerHTML = rows.length
+    ? rows.map(x =>
+      `<article class="list-row">
+        <b>${esc(x.Asunto)}</b>
+        <span>
+          ${esc(x.Estado)} ·
+          ${esc(x.Enviados || 0)} enviados /
+          ${esc(x.Fallidos || 0)} fallidos ·
+          ${esc(fmt(x.Fecha))}
+        </span>
+      </article>`
+    ).join("")
+    : '<p class="muted">Todavía no hay comunicados enviados.</p>';
+}
+
+const commForm = $("communicationForm");
+
+if (commForm) {
+  commForm.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const status = $("commMessageStatus");
+    const file = $("commFile").files[0];
+
+    try {
+      const payload = {
+        asunto: $("commSubject").value.trim(),
+        mensaje: $("commMessage").value.trim(),
+        grupos: [$("commGroup").value]
+      };
+
+      if (file) {
+        if (!/\.(pdf|doc|docx)$/i.test(file.name)) {
+          throw new Error("Adjunta un PDF, DOC o DOCX.");
+        }
+
+        if (file.size > 8 * 1024 * 1024) {
+          throw new Error(
+            "El adjunto supera el límite provisional de 8 MB."
+          );
+        }
+
+        payload.adjuntoNombre = file.name;
+        payload.adjuntoMime = file.type || "application/octet-stream";
+
+        payload.adjuntoBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            resolve(String(reader.result).split(",")[1]);
+          };
+
+          reader.onerror = () => {
+            reject(new Error("No se pudo leer el adjunto."));
+          };
+
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const d = await call("comunicadoEnviar", payload);
+
+      if (!d.ok) {
+        throw new Error(d.error || "No se pudo enviar el comunicado.");
+      }
+
+      status.textContent =
+        `Proceso completado: ${d.enviados} enviados y ${d.fallidos} fallidos.`;
+
+      commForm.reset();
+
+      await loadCommunications();
+
+    } catch (err) {
+      status.textContent = err.message;
+      status.classList.add("error");
+    }
+  });
+}
+
+/* FILTRO POR TURNO */
+
+const turnFilter = $("projectTurnFilter");
+
+if (turnFilter) {
+  turnFilter.addEventListener("change", () => loadProjects());
+    }
+/* CARGA DE MÓDULOS */
+
+async function loadModule(modulo, containerId) {
+  const container = $(containerId);
+  if (!container) return;
+
+  container.innerHTML = '<p class="muted">Cargando información…</p>';
+
+  const d = await call("moduloListar", { modulo });
+
+  if (!d.ok) {
+    throw new Error(d.error || "No se pudo cargar el módulo.");
+  }
+
+  const items = d.items || [];
+
+  if (!items.length) {
+    container.innerHTML =
+      '<p class="muted">No hay registros para esta edición.</p>';
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const entries = Object.entries(item)
+      .filter(([key, value]) =>
+        !["Id", "Edicion"].includes(key) &&
+        value !== "" &&
+        value !== null &&
+        value !== undefined
+      )
+      .slice(0, 6);
+
+    return `
+      <article class="list-row">
+        <b>${esc(entries[0]?.[1] || "Registro")}</b>
+        <span>
+          ${entries.slice(1).map(([key, value]) =>
+            `${esc(key)}: ${esc(value)}`
+          ).join(" · ")}
+        </span>
+      </article>
+    `;
+  }).join("");
+}
