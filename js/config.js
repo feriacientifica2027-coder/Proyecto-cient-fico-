@@ -1,9 +1,24 @@
-
 /**
- * FERIA CIENTÍFICA 2027
- * Configuración central de conexión
+ * FERIA CIENTÍFICA
+ * Configuración general del frontend
  * Instituto Benigno Jiménez Garay
  */
 
-window.FERIA_API_URL =
-  "https://script.google.com/macros/s/AKfycbxt8Rxrbq9li2j7WYErVwldy2rnODprBgamwrOD8zEQ6KjFoKpk07LYExq4a-OhlyUX/exec"  ;
+window.FERIA_CONFIG = Object.freeze({
+  API_URL: "https://script.google.com/macros/s/AKfycbz8oOCzzyymWi-c5cbZuv2U5y0wfD6QfRf0iERKZUyT0kZNv2CbLe0KgeQpy60G3qOHFQ/exec",
+  EDICION: 2027,
+  ZONA_HORARIA: "America/Panama",
+  COLORES: {
+    principal: "#194D3B",
+    secundario: "#34745A",
+    arena: "#C6AD83",
+    fondo: "#EDE8DA",
+    blanco: "#FFFFFF"
+  },
+  TURNOS: {
+    TM: "Matutino",
+    TV: "Vespertino"
+  }
+});
+
+window.FERIA_API_URL = window.FERIA_CONFIG.API_URL;
