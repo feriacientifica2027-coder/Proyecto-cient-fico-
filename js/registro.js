@@ -1,9 +1,10 @@
-
 /**
- * FERIA CIENTÍFICA 2027
+ * FERIA CIENTÍFICA
  * Sistema de inscripción de proyectos
  * Instituto Benigno Jiménez Garay
  */
+
+"use strict";
 
 const AREAS = [
   ["Biología", "BIO", "Estudio de los seres vivos y sus procesos."],
@@ -24,9 +25,7 @@ const btn = document.getElementById("submitBtn");
 
 let enviando = false;
 
-/* =========================================
-   ÁREAS TEMÁTICAS
-========================================= */
+/* ÁREAS TEMÁTICAS */
 
 if (areaBox) {
   AREAS.forEach(([name, code, desc]) => {
@@ -36,7 +35,7 @@ if (areaBox) {
     const radio = document.createElement("input");
     radio.type = "radio";
     radio.name = "areaRadio";
-    radio.value = name;
+    radio.value = code;
     radio.required = true;
 
     const content = document.createElement("span");
@@ -51,7 +50,7 @@ if (areaBox) {
     label.append(radio, content);
 
     radio.addEventListener("change", () => {
-      document.getElementById("area").value = name;
+      document.getElementById("area").value = code;
 
       document.querySelectorAll(".area-option").forEach(option => {
         option.classList.remove("selected");
@@ -64,9 +63,7 @@ if (areaBox) {
   });
 }
 
-/* =========================================
-   UTILIDADES
-========================================= */
+/* UTILIDADES */
 
 function words(text) {
   return text.trim()
@@ -98,9 +95,7 @@ function escapeHtml(value) {
   }[character]));
 }
 
-/* =========================================
-   CONTADOR DE PALABRAS
-========================================= */
+/* CONTADOR DE PALABRAS */
 
 if (resumen) {
   resumen.addEventListener("input", () => {
@@ -120,9 +115,7 @@ if (resumen) {
   });
 }
 
-/* =========================================
-   CONEXIÓN CON GOOGLE APPS SCRIPT
-========================================= */
+/* CONEXIÓN CON GOOGLE APPS SCRIPT */
 
 async function api(payload) {
   if (
@@ -165,9 +158,7 @@ async function api(payload) {
   }
 }
 
-/* =========================================
-   VALIDACIÓN DEL FORMULARIO
-========================================= */
+/* VALIDACIÓN DEL FORMULARIO */
 
 function validateForm(data, file) {
   const area = document.getElementById("area").value;
@@ -194,11 +185,11 @@ function validateForm(data, file) {
     throw new Error("Adjunta el anteproyecto.");
   }
 
-  const maxSize = 20 * 1024 * 1024;
+  const maxSize = 8 * 1024 * 1024;
 
   if (file.size > maxSize) {
     throw new Error(
-      "El archivo supera el límite permitido de 20 MB."
+      "El archivo supera el límite provisional de 8 MB."
     );
   }
 
@@ -217,9 +208,7 @@ function validateForm(data, file) {
   return area;
 }
 
-/* =========================================
-   LECTURA DEL ARCHIVO
-========================================= */
+/* LECTURA DEL ARCHIVO */
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -254,9 +243,7 @@ function fileToBase64(file) {
   });
 }
 
-/* =========================================
-   RESTAURAR BOTÓN
-========================================= */
+/* RESTAURAR BOTÓN */
 
 function restoreButton() {
   enviando = false;
@@ -267,9 +254,7 @@ function restoreButton() {
   }
 }
 
-/* =========================================
-   ENVÍO DE INSCRIPCIÓN
-========================================= */
+/* ENVÍO DE INSCRIPCIÓN */
 
 if (form) {
   form.addEventListener("submit", async event => {
@@ -290,7 +275,6 @@ if (form) {
 
       data.area = validateForm(data, file);
 
-      // Bloquea nuevos envíos antes de iniciar operaciones asíncronas.
       enviando = true;
       btn.disabled = true;
       btn.textContent = "Preparando inscripción…";
@@ -302,6 +286,7 @@ if (form) {
       const response = await api({
         ...data,
         accion: "registrar",
+        edicion: window.FERIA_CONFIG?.EDICION || 2027,
         archivoNombre: file.name,
         archivoMime: file.type || "application/octet-stream",
         archivoBase64: base64
@@ -355,4 +340,4 @@ if (form) {
       restoreButton();
     }
   });
-}
+      }
