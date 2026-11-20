@@ -1,23 +1,91 @@
-<h1>¡Felicitaciones! Tu proyecto fue seleccionado</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{asunto}}</title>
+</head>
+<body style="margin:0;padding:0;background:#EDE8DA;font-family:Arial,sans-serif;color:#263B31;">
 
-<p>¡Muchas felicidades, <b>{{lider}}</b>!</p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:30px 12px;">
+    <tr>
+      <td align="center">
 
-<p>Con mucha alegría te informamos que el comité evaluó tu proyecto "{{titulo}}" y <b>quedó seleccionado</b> para participar en la <b>{{evento}}</b>. Es el resultado del trabajo, la curiosidad y la dedicación de todo tu equipo y de su docente asesor. ¡Se lo han ganado!</p>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#FFFFFF;border-radius:12px;overflow:hidden;">
 
-<p><span class="etiqueta-verde">Seleccionado</span></p>
+          <tr>
+            <td style="background:#194D3B;padding:25px 30px;color:#FFFFFF;">
+              <p style="margin:0 0 5px;color:#DCCBAA;font-size:12px;letter-spacing:2px;">
+                INSTITUTO BENIGNO JIMÉNEZ GARAY
+              </p>
+              <h1 style="margin:0;color:#FFFFFF;font-size:24px;">Feria Científica</h1>
+              <p style="margin:5px 0 0;color:#E6EEE8;font-size:13px;">Edición {{edicion}}</p>
+            </td>
+          </tr>
 
-<p><b>Código:</b> {{codigo}}</p>
+          <tr>
+            <td style="padding:32px 30px;">
 
-{{#observaciones}}
-<h3>Observaciones del comité</h3>
-<div class="nota">{{observaciones}}</div>
-{{/observaciones}}
+              <h2 style="margin:0 0 15px;color:#194D3B;">
+                ¡Felicitaciones! Tu proyecto ha sido seleccionado
+              </h2>
 
-<h3>Próximos pasos</h3>
-<ol>
-  <li>Celebra esta noticia con tu equipo y con tu docente asesor.</li>
-  <li>Sigue desarrollando el proyecto: pronto recibirás por este medio la información de la jornada (fecha, lugar y lineamientos de presentación).</li>
-  <li>Revisa tu bandeja de entrada con frecuencia para no perder ningún comunicado.</li>
-</ol>
+              <p style="line-height:1.7;">
+                Nos complace comunicarte que tu propuesta ha sido seleccionada
+                para continuar en la Feria Científica.
+              </p>
 
-<p>¡Sigan adelante con el mismo entusiasmo! Estamos muy orgullosos de su esfuerzo.</p>
+              <div style="margin:24px 0;padding:18px;background:#F5F3EC;border-left:4px solid #C6AD83;border-radius:5px;">
+
+                <p style="margin:0 0 8px;color:#6F7C73;font-size:13px;">
+                  Proyecto seleccionado
+                </p>
+
+                <p style="margin:0;color:#194D3B;font-weight:bold;font-size:17px;">
+                  «{{titulo}}»
+                </p>
+
+                <p style="margin:15px 0 5px;color:#6F7C73;font-size:13px;">
+                  Código
+                </p>
+
+                <p style="margin:0;color:#194D3B;font-weight:bold;">
+                  {{codigo}}
+                </p>
+
+              </div>
+
+              <p style="line-height:1.7;">
+                Este resultado reconoce el trabajo realizado hasta esta etapa.
+                Te invitamos a mantener el compromiso con la calidad,
+                la responsabilidad y el rigor de tu investigación.
+              </p>
+
+              <p style="line-height:1.7;">
+                Mantente atento a las próximas indicaciones del comité organizador
+                sobre las siguientes etapas de participación.
+              </p>
+
+              <p style="margin-top:25px;line-height:1.7;">
+                Atentamente,<br>
+                <strong>Comité Organizador</strong><br>
+                Feria Científica
+              </p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 30px;background:#F5F3EC;text-align:center;color:#6F7C73;font-size:12px;">
+              Instituto Benigno Jiménez Garay · Feria Científica {{edicion}}
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
