@@ -1,10 +1,8 @@
 /**
- * FERIA CIENTÍFICA
+ * FERIA CIENTÍFICA 2027
  * Sistema de inscripción de proyectos
  * Instituto Benigno Jiménez Garay
  */
-
-"use strict";
 
 const AREAS = [
   ["Biología", "BIO", "Estudio de los seres vivos y sus procesos."],
@@ -162,7 +160,9 @@ async function api(payload) {
 
 function validateForm(data, file) {
   const area = document.getElementById("area").value;
+
   const correo = String(data.correo || "").trim();
+
   const correoConfirmacion = document
     .getElementById("correoConfirmacion")
     .value.trim();
@@ -185,11 +185,13 @@ function validateForm(data, file) {
     throw new Error("Adjunta el anteproyecto.");
   }
 
+  // Límite provisional del envío directo.
+  // No equivale a soporte de carga fragmentada de 80 MB.
   const maxSize = 8 * 1024 * 1024;
 
   if (file.size > maxSize) {
     throw new Error(
-      "El archivo supera el límite provisional de 8 MB."
+      "El archivo supera el límite provisional de 8 MB. La carga de hasta 80 MB requiere transferencia fragmentada."
     );
   }
 
@@ -340,4 +342,4 @@ if (form) {
       restoreButton();
     }
   });
-      }
+}
