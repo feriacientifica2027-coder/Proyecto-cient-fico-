@@ -1,30 +1,91 @@
-<h1>¡Gran paso! Tu proyecto quedó registrado</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{asunto}}</title>
+</head>
+<body style="margin:0;padding:0;background:#EDE8DA;font-family:Arial,sans-serif;color:#263B31;">
 
-<p>Hola <b>{{lider}}</b>,</p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:30px 12px;">
+    <tr>
+      <td align="center">
 
-<p>¡Gracias por animarte a participar! Recibimos la inscripción de tu proyecto "{{titulo}}" en la <b>{{evento}}</b>. Dar este paso demuestra curiosidad y compromiso, justo lo que mueve a la ciencia.</p>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#FFFFFF;border-radius:12px;overflow:hidden;">
 
-<div class="codigo">
-  <small>Código del proyecto</small>
-  <strong>{{codigo}}</strong>
-</div>
+          <tr>
+            <td style="background:#194D3B;padding:25px 30px;color:#FFFFFF;">
+              <p style="margin:0 0 5px;color:#DCCBAA;font-size:12px;letter-spacing:2px;">
+                INSTITUTO BENIGNO JIMÉNEZ GARAY
+              </p>
+              <h1 style="margin:0;color:#FFFFFF;font-size:24px;">Feria Científica</h1>
+              <p style="margin:5px 0 0;color:#E6EEE8;font-size:13px;">Edición {{edicion}}</p>
+            </td>
+          </tr>
 
-<p><b>Área temática:</b> {{area}}</p>
+          <tr>
+            <td style="padding:32px 30px;">
 
-<h3>¿Qué es la Feria Científica Interna?</h3>
-<div class="nota">
-  La Feria Científica Interna es el espacio del Instituto Benigno Jiménez Garay donde los estudiantes presentan sus proyectos de investigación ante la comunidad educativa. Es una oportunidad para aprender haciendo, compartir ideas, recibir orientación de docentes y de un comité evaluador, y fortalecer el pensamiento científico.
-  <br><br>
-  <b>Áreas temáticas:</b> {{areas}}
-</div>
+              <h2 style="color:#194D3B;margin:0 0 15px;">
+                ¡Tu inscripción ha sido recibida!
+              </h2>
 
-<h3>¿Qué sigue?</h3>
-<ol>
-  <li>El comité revisará tu anteproyecto con mucho interés.</li>
-  <li>Te avisaremos por este mismo correo cuando cambie el estado de tu proyecto.</li>
-  <li>Puedes consultar el estado en cualquier momento con tu código y el correo de tu inscripción.</li>
-</ol>
+              <p style="line-height:1.7;">
+                Hemos recibido correctamente la inscripción de tu propuesta.
+                Este es el primer paso para desarrollar y presentar tu investigación
+                en la Feria Científica.
+              </p>
 
-<div class="aviso"><b>Guarda este código.</b> Lo necesitas para consultar tu proyecto y para cualquier comunicación con el comité.</div>
+              <div style="margin:24px 0;padding:18px;background:#F5F3EC;border-left:4px solid #C6AD83;border-radius:5px;">
 
-<p>¡Mucho ánimo! Estamos felices de contar con tu equipo. Sigan investigando con entusiasmo.</p>
+                <p style="margin:0 0 8px;color:#6F7C73;font-size:13px;">
+                  Proyecto registrado
+                </p>
+
+                <p style="margin:0;color:#194D3B;font-weight:bold;font-size:17px;">
+                  «{{titulo}}»
+                </p>
+
+                <p style="margin:15px 0 5px;color:#6F7C73;font-size:13px;">
+                  Código de inscripción
+                </p>
+
+                <p style="margin:0;color:#194D3B;font-size:19px;font-weight:bold;">
+                  {{codigo}}
+                </p>
+
+              </div>
+
+              <p style="line-height:1.7;">
+                Conserva tu código. Lo necesitarás para consultar la información
+                y las actualizaciones relacionadas con tu proyecto.
+              </p>
+
+              <p style="line-height:1.7;">
+                Gracias por participar. Te animamos a continuar trabajando
+                con responsabilidad, curiosidad y compromiso científico.
+              </p>
+
+              <p style="margin-top:25px;line-height:1.7;">
+                Atentamente,<br>
+                <strong>Comité Organizador</strong><br>
+                Feria Científica
+              </p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 30px;background:#F5F3EC;text-align:center;color:#6F7C73;font-size:12px;">
+              Instituto Benigno Jiménez Garay · Feria Científica {{edicion}}
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
