@@ -1,263 +1,797 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#194D3B">
-  <meta name="description" content="Feria Científica del Instituto Benigno Jiménez Garay">
+
   <title>Feria Científica | Instituto Benigno Jiménez Garay</title>
+
+  <meta name="description" content="Portal oficial de la Feria Científica del Instituto Benigno Jiménez Garay. Consulta la convocatoria, las áreas científicas y los procesos de inscripción.">
+
   <link rel="stylesheet" href="css/estilos.css">
 
   <style>
-    .portal-hero {
-      padding: clamp(32px, 6vw, 68px);
-      color: #fff;
-      background: linear-gradient(120deg, #194D3B, #34745A);
-      border-radius: 16px;
+    :root {
+      --verde: #194D3B;
+      --verde-secundario: #34745A;
+      --arena: #C6AD83;
+      --fondo: #EDE8DA;
+      --blanco: #FFFFFF;
+      --texto: #26372E;
+      --gris: #68736C;
+      --borde: #DED8C9;
     }
 
-    .portal-hero h2 {
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--fondo);
+      color: var(--texto);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 36px));
+      margin-inline: auto;
+    }
+
+    /* ENCABEZADO */
+
+    .site-header {
+      position: relative;
+      z-index: 5;
+      background: var(--blanco);
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .header-inner {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--verde);
+      color: var(--blanco);
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .brand-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .brand-info .eyebrow {
+      margin: 0;
+      color: var(--verde-secundario);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+    }
+
+    .brand-info h1 {
+      margin: 2px 0 0;
+      color: var(--verde);
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .main-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px 19px;
+    }
+
+    .main-nav a {
+      color: var(--texto);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .main-nav a:hover {
+      color: var(--verde-secundario);
+    }
+
+    .main-nav .admin-access {
+      color: var(--verde);
+      border: 1px solid var(--borde);
+      border-radius: 7px;
+      padding: 8px 11px;
+    }
+
+    .main-nav .admin-access:hover {
+      background: var(--fondo);
+    }
+
+    /* PORTADA */
+
+    .hero {
+      padding: 75px 0 72px;
+      background: var(--verde);
+      color: var(--blanco);
+    }
+
+    .hero-content {
       max-width: 760px;
-      color: #fff;
-      font-size: clamp(32px, 5vw, 52px);
+    }
+
+    .hero-label {
+      display: inline-block;
+      margin-bottom: 17px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 30px;
+      color: #E9DFC9;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .hero h2 {
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(34px, 5vw, 54px);
       line-height: 1.12;
+      letter-spacing: -.8px;
     }
 
-    .portal-hero p {
-      max-width: 680px;
-      color: #f1f4ef;
-    }
-
-    .portal-hero .eyebrow {
-      color: #E5D4B6;
+    .hero-description {
+      max-width: 620px;
+      margin: 21px 0 27px;
+      color: #E5EBE5;
+      font-size: 16px;
+      line-height: 1.8;
     }
 
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      margin-top: 25px;
     }
 
-    .hero-actions .primary {
-      background: #fff;
-      color: #194D3B;
-      border-color: #fff;
+    .button {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 19px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      transition: .2s ease;
     }
 
-    .hero-actions .secondary {
-      background: transparent;
-      color: #fff;
-      border-color: #ffffff99;
+    .button-light {
+      background: var(--blanco);
+      color: var(--verde);
     }
 
-    .portal-section {
-      margin-top: 42px;
+    .button-light:hover {
+      background: #F0EBDD;
     }
 
-    .portal-grid {
+    .button-outline {
+      border-color: rgba(255,255,255,.65);
+      color: var(--blanco);
+    }
+
+    .button-outline:hover {
+      background: rgba(255,255,255,.1);
+    }
+
+    /* INFORMACIÓN GENERAL */
+
+    .intro-section {
+      padding: 65px 0 35px;
+    }
+
+    .section-heading {
+      max-width: 700px;
+      margin-bottom: 30px;
+    }
+
+    .eyebrow {
+      color: var(--verde-secundario);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .section-heading h2 {
+      margin: 8px 0 10px;
+      color: var(--verde);
+      font-size: clamp(25px, 3vw, 34px);
+      line-height: 1.2;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--gris);
+      line-height: 1.8;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .info-card {
+      padding: 23px;
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 11px;
+    }
+
+    .info-number {
+      display: block;
+      margin-bottom: 13px;
+      color: var(--arena);
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .info-card h3 {
+      margin: 0 0 9px;
+      color: var(--verde);
+      font-size: 17px;
+    }
+
+    .info-card p {
+      margin: 0;
+      color: var(--gris);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* ÁREAS */
+
+    .areas-section {
+      padding: 55px 0 70px;
+    }
+
+    .areas-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
+      gap: 13px;
     }
 
-    .portal-card,
-    .portal-announcement {
-      padding: 22px;
-      background: #fff;
-      border: 1px solid #DED8C9;
+    .area-card {
+      min-height: 125px;
+      padding: 18px;
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 9px;
+    }
+
+    .area-card span {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--arena);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .area-card h3 {
+      margin: 0;
+      color: var(--verde);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    /* INSCRIPCIÓN */
+
+    .registration-section {
+      padding: 55px 0;
+      background: #E3DDCD;
+    }
+
+    .registration-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      padding: 34px;
+      background: var(--blanco);
+      border: 1px solid var(--borde);
       border-radius: 12px;
     }
 
-    .portal-card strong {
-      color: #34745A;
+    .registration-card > div:first-child {
+      max-width: 650px;
     }
 
-    .portal-card h3,
-    .portal-announcement h2 {
-      color: #194D3B;
+    .registration-card h2 {
+      margin: 7px 0 10px;
+      color: var(--verde);
+      font-size: 27px;
+      line-height: 1.25;
     }
 
-    .portal-cta {
-      margin-top: 42px;
-      padding: 30px;
-      text-align: center;
-      color: #fff;
-      background: #194D3B;
-      border-radius: 14px;
+    .registration-card p {
+      margin: 0;
+      color: var(--gris);
+      font-size: 14px;
+      line-height: 1.7;
     }
 
-    .portal-cta h2 {
-      color: #fff;
+    .registration-card .button {
+      flex: 0 0 auto;
+      background: var(--verde);
+      color: var(--blanco);
     }
 
-    .portal-cta p {
-      color: #e8eee9;
+    .registration-card .button:hover {
+      background: var(--verde-secundario);
     }
 
-    @media (max-width: 800px) {
-      .portal-grid {
+    /* CONSULTA */
+
+    .consult-section {
+      padding: 55px 0;
+    }
+
+    .consult-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+      padding: 28px;
+      background: var(--verde);
+      border-radius: 11px;
+      color: var(--blanco);
+    }
+
+    .consult-card h2 {
+      margin: 0 0 7px;
+      font-size: 21px;
+    }
+
+    .consult-card p {
+      margin: 0;
+      color: #E5EBE5;
+      font-size: 13px;
+    }
+
+    .consult-card .button {
+      flex: 0 0 auto;
+      background: var(--blanco);
+      color: var(--verde);
+    }
+
+    /* PIE */
+
+    .site-footer {
+      padding: 30px 0;
+      background: #153E30;
+      color: var(--blanco);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer-inner p {
+      margin: 0;
+      color: #D8E1D9;
+      font-size: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .footer-links a {
+      color: #E5D4B6;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 850px) {
+      .header-inner {
+        flex-wrap: wrap;
+      }
+
+      .main-nav {
+        width: 100%;
+        justify-content: flex-start;
+        padding-top: 9px;
+        border-top: 1px solid #EEEAE1;
+      }
+
+      .areas-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 560px) {
-      .portal-grid {
-        grid-template-columns: 1fr;
+    @media (max-width: 600px) {
+      .container {
+        width: min(100% - 28px, 1120px);
+      }
+
+      .header-inner {
+        gap: 10px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px;
+      }
+
+      .brand-info h1 {
+        font-size: 16px;
+      }
+
+      .brand-info .eyebrow {
+        font-size: 9px;
+      }
+
+      .main-nav {
+        gap: 10px 15px;
+      }
+
+      .main-nav a {
+        font-size: 12px;
+      }
+
+      .main-nav .admin-access {
+        padding: 6px 8px;
+      }
+
+      .hero {
+        padding: 53px 0;
+      }
+
+      .hero h2 {
+        font-size: 36px;
+      }
+
+      .hero-description {
+        font-size: 14px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .intro-section,
+      .areas-section {
+        padding-top: 45px;
+        padding-bottom: 45px;
+      }
+
+      .areas-grid {
+        gap: 10px;
+      }
+
+      .area-card {
+        min-height: 115px;
+        padding: 14px;
+      }
+
+      .area-card h3 {
+        font-size: 12px;
+      }
+
+      .registration-card,
+      .consult-card {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 23px;
+      }
+
+      .registration-card h2 {
+        font-size: 23px;
+      }
+
+      .registration-card .button,
+      .consult-card .button {
+        width: 100%;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
 </head>
 
 <body>
+
+  <!-- ENCABEZADO -->
   <header class="site-header">
     <div class="container header-inner">
-      <div class="brand-mark">FC</div>
 
-      <div>
-        <p class="eyebrow" data-site="institucion">
-          Instituto Benigno Jiménez Garay
-        </p>
-        <h1 data-site="titulo">Feria Científica</h1>
+      <div class="brand-mark" aria-hidden="true">FC</div>
+
+      <div class="brand-info">
+        <p class="eyebrow">Instituto Benigno Jiménez Garay</p>
+        <h1>Feria Científica <span id="editionHeader">2027</span></h1>
       </div>
 
-      <nav>
+      <nav class="main-nav" aria-label="Navegación principal">
         <a href="#inicio">Inicio</a>
+        <a href="#informacion">La feria</a>
         <a href="#areas">Áreas científicas</a>
         <a href="consulta.html">Consultar proyecto</a>
+        <a href="admin.html" class="admin-access">
+          Acceso administrativo
+        </a>
       </nav>
+
     </div>
   </header>
 
-  <main class="container">
-    <section class="portal-hero" id="inicio">
-      <p class="eyebrow">Investigación · Ciencia · Conocimiento</p>
+  <main>
 
-      <h2 data-site="subtitulo">
-        La ciencia comienza con una pregunta
-      </h2>
+    <!-- PORTADA -->
+    <section class="hero" id="inicio">
+      <div class="container">
+        <div class="hero-content">
 
-      <p data-site="descripcion">
-        Un espacio institucional para investigar, experimentar,
-        descubrir y compartir el conocimiento científico.
-      </p>
+          <span class="hero-label">
+            Convocatoria institucional
+          </span>
 
-      <div class="hero-actions">
-        <a href="inscripcion.html" class="button primary">
-          Inscribir un proyecto
-        </a>
+          <h2>
+            La investigación comienza con una pregunta.
+          </h2>
 
-        <a href="#areas" class="button secondary">
-          Conocer las áreas científicas
-        </a>
+          <p class="hero-description">
+            La Feria Científica del Instituto Benigno Jiménez Garay
+            es un espacio para desarrollar ideas, investigar problemas
+            y compartir conocimientos mediante el pensamiento científico.
+          </p>
+
+          <div class="hero-actions">
+            <a href="inscripcion.html" class="button button-light">
+              Inscribir anteproyecto
+            </a>
+
+            <a href="#informacion" class="button button-outline">
+              Conocer la feria
+            </a>
+          </div>
+
+        </div>
       </div>
     </section>
 
-    <section class="portal-section">
-      <div class="portal-announcement">
-        <p class="eyebrow">Convocatoria institucional</p>
+    <!-- INFORMACIÓN -->
+    <section class="intro-section" id="informacion">
+      <div class="container">
 
-        <h2>Participa en la Feria Científica</h2>
+        <div class="section-heading">
+          <span class="eyebrow">Sobre la iniciativa</span>
+          <h2>Investigar, comprender y proponer.</h2>
+          <p>
+            Este encuentro académico promueve la curiosidad,
+            el pensamiento crítico y la aplicación del conocimiento
+            científico en la comprensión de situaciones del entorno.
+            Los estudiantes podrán presentar propuestas de investigación
+            en distintas áreas del conocimiento.
+          </p>
+        </div>
 
-        <p>
-          Desarrolla y presenta investigaciones dentro de las distintas
-          áreas del conocimiento. Consulta las indicaciones antes de
-          completar tu inscripción.
-        </p>
+        <div class="info-grid">
 
-        <p>
-          <strong>Fecha límite:</strong>
-          <span data-site="fecha">Por definir</span>
-        </p>
+          <article class="info-card">
+            <span class="info-number">01</span>
+            <h3>Explorar</h3>
+            <p>
+              Identificar preguntas y situaciones que puedan
+              estudiarse mediante procesos de investigación.
+            </p>
+          </article>
 
-        <p data-site="aviso">
-          Consulta las indicaciones de la edición vigente.
-        </p>
+          <article class="info-card">
+            <span class="info-number">02</span>
+            <h3>Investigar</h3>
+            <p>
+              Desarrollar propuestas con fundamentos científicos,
+              metodología y análisis de información.
+            </p>
+          </article>
 
-        <a href="inscripcion.html" class="button primary">
-          Ir al formulario de inscripción
-        </a>
+          <article class="info-card">
+            <span class="info-number">03</span>
+            <h3>Compartir</h3>
+            <p>
+              Comunicar los resultados y conocimientos obtenidos
+              a la comunidad educativa.
+            </p>
+          </article>
+
+        </div>
       </div>
     </section>
 
-    <section class="portal-section" id="areas">
-      <p class="eyebrow">Campos de investigación</p>
-      <h2>Áreas científicas</h2>
+    <!-- ÁREAS CIENTÍFICAS -->
+    <section class="areas-section" id="areas">
+      <div class="container">
 
-      <div class="portal-grid">
-        <article class="portal-card">
-          <strong>BIO</strong>
-          <h3>Biología</h3>
-          <p>Seres vivos, estructuras, funciones y procesos.</p>
-        </article>
+        <div class="section-heading">
+          <span class="eyebrow">Campos de investigación</span>
+          <h2>Áreas científicas</h2>
+          <p>
+            Las propuestas deberán inscribirse en una de las
+            siguientes áreas temáticas.
+          </p>
+        </div>
 
-        <article class="portal-card">
-          <strong>CAM</strong>
-          <h3>Ciencias Ambientales</h3>
-          <p>Ecosistemas, ambiente y sostenibilidad.</p>
-        </article>
+        <div class="areas-grid">
 
-        <article class="portal-card">
-          <strong>CCO</strong>
-          <h3>Ciencias de la Computación</h3>
-          <p>Computación, programación y análisis de datos.</p>
-        </article>
+          <article class="area-card">
+            <span>BIO</span>
+            <h3>Biología</h3>
+          </article>
 
-        <article class="portal-card">
-          <strong>CSC</strong>
-          <h3>Ciencias Sociales y del Comportamiento</h3>
-          <p>Sociedad, educación, cultura y comportamiento.</p>
-        </article>
+          <article class="area-card">
+            <span>CAM</span>
+            <h3>Ciencias Ambientales</h3>
+          </article>
 
-        <article class="portal-card">
-          <strong>FMA</strong>
-          <h3>Física y Matemática</h3>
-          <p>Fenómenos físicos y modelos matemáticos.</p>
-        </article>
+          <article class="area-card">
+            <span>CCO</span>
+            <h3>Ciencias de la Computación</h3>
+          </article>
 
-        <article class="portal-card">
-          <strong>INY</strong>
-          <h3>Ingeniería y Tecnología</h3>
-          <p>Procesos, materiales y tecnología.</p>
-        </article>
+          <article class="area-card">
+            <span>CSC</span>
+            <h3>Ciencias Sociales y del Comportamiento</h3>
+          </article>
 
-        <article class="portal-card">
-          <strong>QUI</strong>
-          <h3>Química</h3>
-          <p>Materia, propiedades y transformaciones.</p>
-        </article>
+          <article class="area-card">
+            <span>FMA</span>
+            <h3>Física y Matemática</h3>
+          </article>
 
-        <article class="portal-card">
-          <strong>SYM</strong>
-          <h3>Salud y Medicina</h3>
-          <p>Salud, prevención e investigación biomédica.</p>
-        </article>
+          <article class="area-card">
+            <span>INY</span>
+            <h3>Ingeniería y Tecnología</h3>
+          </article>
+
+          <article class="area-card">
+            <span>QUI</span>
+            <h3>Química</h3>
+          </article>
+
+          <article class="area-card">
+            <span>SYM</span>
+            <h3>Salud y Medicina</h3>
+          </article>
+
+        </div>
       </div>
     </section>
 
-    <section class="portal-cta">
-      <h2>¿Tienes una pregunta científica?</h2>
+    <!-- INSCRIPCIÓN -->
+    <section class="registration-section" id="inscripcion">
+      <div class="container">
 
-      <p>
-        Conviértela en una investigación y forma parte de la feria institucional.
-      </p>
+        <div class="registration-card">
 
-      <a href="inscripcion.html" class="button primary">
-        Registrar anteproyecto
-      </a>
+          <div>
+            <span class="eyebrow">Participación estudiantil</span>
+            <h2>Presenta tu anteproyecto</h2>
+            <p>
+              Prepara tu propuesta de investigación y completa
+              el formulario de inscripción. El registro se realiza
+              por etapas para facilitar el ingreso de la información.
+            </p>
+          </div>
+
+          <a href="inscripcion.html" class="button">
+            Ir a inscripción
+          </a>
+
+        </div>
+      </div>
     </section>
+
+    <!-- CONSULTA -->
+    <section class="consult-section">
+      <div class="container">
+
+        <div class="consult-card">
+
+          <div>
+            <h2>¿Ya inscribiste tu proyecto?</h2>
+            <p>
+              Consulta el estado de tu inscripción utilizando
+              el código asignado al proyecto.
+            </p>
+          </div>
+
+          <a href="consulta.html" class="button">
+            Consultar proyecto
+          </a>
+
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <footer>
-    <div class="container">
-      <p>Instituto Benigno Jiménez Garay · Feria Científica</p>
+  <!-- PIE DE PÁGINA -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+
       <p>
-        <a href="consulta.html">Consulta de proyectos</a>
+        © <span id="currentYear">2027</span>
+        Instituto Benigno Jiménez Garay · Feria Científica
       </p>
+
+      <div class="footer-links">
+        <a href="consulta.html">Consulta de proyectos</a>
+        <a href="admin.html">Acceso administrativo</a>
+      </div>
+
     </div>
   </footer>
 
-  <script src="js/config.js"></script>
-  <script src="js/publico.js"></script>
+  <script>
+    (() => {
+      const edition = window.FERIA_CONFIG?.EDICION || 2027;
+
+      document.getElementById("editionHeader").textContent = edition;
+      document.getElementById("currentYear").textContent = edition;
+    })();
+  </script>
+
 </body>
 </html>
