@@ -1,27 +1,92 @@
-<h1>Gracias por tu esfuerzo y tu curiosidad</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{asunto}}</title>
+</head>
+<body style="margin:0;padding:0;background:#EDE8DA;font-family:Arial,sans-serif;color:#263B31;">
 
-<p>Hola <b>{{lider}}</b>,</p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:30px 12px;">
+    <tr>
+      <td align="center">
 
-<p>Queremos darte las gracias de corazón por haber participado con tu proyecto "{{titulo}}" en la <b>{{evento}}</b>. Se nota el trabajo y las ganas que tu equipo puso en él.</p>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#FFFFFF;border-radius:12px;overflow:hidden;">
 
-<p>En esta ocasión el comité no pudo seleccionar tu proyecto para continuar en la feria. Sabemos que no es la noticia que esperabas, pero queremos que sepas que tu esfuerzo tiene un gran valor y que este es solo un paso en tu camino como investigador.</p>
+          <tr>
+            <td style="background:#194D3B;padding:25px 30px;color:#FFFFFF;">
+              <p style="margin:0 0 5px;color:#DCCBAA;font-size:12px;letter-spacing:2px;">
+                INSTITUTO BENIGNO JIMÉNEZ GARAY
+              </p>
+              <h1 style="margin:0;color:#FFFFFF;font-size:24px;">Feria Científica</h1>
+              <p style="margin:5px 0 0;color:#E6EEE8;font-size:13px;">Edición {{edicion}}</p>
+            </td>
+          </tr>
 
-<p><span class="etiqueta-azul">No seleccionado</span></p>
+          <tr>
+            <td style="padding:32px 30px;">
 
-<p><b>Código:</b> {{codigo}}</p>
+              <h2 style="margin:0 0 15px;color:#194D3B;">
+                Resultado de la convocatoria
+              </h2>
 
-{{#observaciones}}
-<h3>Comentarios para seguir creciendo</h3>
-<div class="nota">{{observaciones}}</div>
-{{/observaciones}}
+              <p style="line-height:1.7;">
+                Agradecemos tu participación y el esfuerzo dedicado a la
+                elaboración de tu propuesta de investigación.
+              </p>
 
-<h3>Y ahora, ¿qué sigue?</h3>
-<ol>
-  <li>Revisa los comentarios del comité: son una guía valiosa para fortalecer tu investigación.</li>
-  <li>Conversa con tu docente asesor sobre cómo seguir mejorando el proyecto.</li>
-  <li>Sigue investigando: muchas de las mejores ideas se perfeccionan con tiempo, y te esperamos en próximas convocatorias.</li>
-</ol>
+              <div style="margin:24px 0;padding:18px;background:#F5F3EC;border-left:4px solid #C6AD83;border-radius:5px;">
 
-<p>Si quieres conversar sobre la evaluación, responde a este correo: con gusto te acompañamos.</p>
+                <p style="margin:0 0 8px;color:#6F7C73;font-size:13px;">
+                  Proyecto evaluado
+                </p>
 
-<p>¡Gracias por animarte a participar! Tu curiosidad es lo que mueve a la ciencia.</p>
+                <p style="margin:0;color:#194D3B;font-weight:bold;font-size:17px;">
+                  «{{titulo}}»
+                </p>
+
+                <p style="margin:15px 0 5px;color:#6F7C73;font-size:13px;">
+                  Código
+                </p>
+
+                <p style="margin:0;color:#194D3B;font-weight:bold;">
+                  {{codigo}}
+                </p>
+
+              </div>
+
+              <p style="line-height:1.7;">
+                En esta edición, tu propuesta no ha sido seleccionada para
+                continuar. Reconocemos el tiempo, la dedicación y el interés
+                científico que representa tu trabajo.
+              </p>
+
+              <p style="line-height:1.7;">
+                Este resultado no resta valor a lo aprendido durante el proceso.
+                Te animamos a seguir investigando, revisar tu experiencia
+                y continuar desarrollando nuevas ideas.
+              </p>
+
+              <p style="margin-top:25px;line-height:1.7;">
+                Atentamente,<br>
+                <strong>Comité Organizador</strong><br>
+                Feria Científica
+              </p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 30px;background:#F5F3EC;text-align:center;color:#6F7C73;font-size:12px;">
+              Instituto Benigno Jiménez Garay · Feria Científica {{edicion}}
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
