@@ -822,14 +822,17 @@ async function loadModule(modulo, containerId) {
     throw new Error(d.error || "No se pudo cargar el módulo.");
   }
 
-  const items = d.items || [];
-
-  if (!items.length) {
-    container.innerHTML =
-      '<p class="muted">No hay registros para esta edición.</p>';
-    return;
+  const d = await call("moduloGuardar", {
+  modulo: "calendario",
+  item: {
+    Titulo: $("calTitle").value,
+    Tipo: $("calType").value,
+    FechaInicio: $("calStart").value,
+    FechaFin: $("calEnd").value,
+    Descripcion: $("calDescription").value,
+    Visible: true
   }
-
+  });
   container.innerHTML = items.map(item => {
     const entries = Object.entries(item)
       .filter(([key, value]) =>
