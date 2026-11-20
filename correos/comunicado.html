@@ -1,5 +1,59 @@
-<h1>{{asunto}}</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{asunto}}</title>
+</head>
+<body style="margin:0;padding:0;background:#EDE8DA;font-family:Arial,sans-serif;color:#263B31;">
 
-{{cuerpo}}
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:30px 12px;">
+    <tr>
+      <td align="center">
 
-<p>Cordialmente,<br><b>Comité Organizador</b><br>{{institucion}}</p>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#FFFFFF;border-radius:12px;overflow:hidden;">
+
+          <tr>
+            <td style="background:#194D3B;padding:25px 30px;color:#FFFFFF;">
+              <p style="margin:0 0 5px;color:#DCCBAA;font-size:12px;letter-spacing:2px;">
+                INSTITUTO BENIGNO JIMÉNEZ GARAY
+              </p>
+              <h1 style="margin:0;color:#FFFFFF;font-size:24px;">Feria Científica</h1>
+              <p style="margin:5px 0 0;color:#E6EEE8;font-size:13px;">Edición {{edicion}}</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:32px 30px;">
+
+              <h2 style="margin:0 0 18px;color:#194D3B;">
+                Comunicado institucional
+              </h2>
+
+              <div style="font-size:15px;line-height:1.8;white-space:pre-line;">
+                {{mensaje}}
+              </div>
+
+              <p style="margin-top:28px;line-height:1.7;">
+                Atentamente,<br>
+                <strong>Comité Organizador</strong><br>
+                Feria Científica
+              </p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:18px 30px;background:#F5F3EC;text-align:center;color:#6F7C73;font-size:12px;">
+              Instituto Benigno Jiménez Garay · Feria Científica {{edicion}}
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
