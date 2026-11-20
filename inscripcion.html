@@ -3,22 +3,358 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123b35">
-  <meta name="description" content="Formulario oficial de inscripción de proyectos para la Feria Científica del Instituto Benigno Jiménez Garay.">
+  <meta name="theme-color" content="#194D3B">
   <title>Inscripción | Feria Científica</title>
   <link rel="stylesheet" href="css/estilos.css">
+
+  <style>
+    .wizard {
+      max-width: 900px;
+      margin: 32px auto 60px;
+    }
+
+    .wizard-heading {
+      margin-bottom: 25px;
+    }
+
+    .wizard-heading h2 {
+      color: #194D3B;
+      margin-bottom: 8px;
+    }
+
+    .wizard-progress {
+      display: flex;
+      gap: 6px;
+      margin: 22px 0 10px;
+    }
+
+    .wizard-progress span {
+      height: 6px;
+      flex: 1;
+      border-radius: 20px;
+      background: #deded5;
+      transition: background .2s ease;
+    }
+
+    .wizard-progress span.done {
+      background: #34745A;
+    }
+
+    .wizard-step-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #68736c;
+      font-size: 13px;
+    }
+
+    .wizard-tabs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin: 25px 0;
+    }
+
+    .wizard-tab {
+      min-width: 0;
+      padding: 12px 5px;
+      border: 1px solid #ded8c9;
+      border-radius: 9px;
+      background: #fff;
+      color: #526057;
+      cursor: default;
+      text-align: center;
+      opacity: .65;
+    }
+
+    .wizard-tab.active {
+      background: #194D3B;
+      border-color: #194D3B;
+      color: #fff;
+      opacity: 1;
+    }
+
+    .wizard-tab.completed {
+      border-color: #34745A;
+      color: #194D3B;
+      opacity: 1;
+    }
+
+    .wizard-tab-number {
+      display: block;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .wizard-tab-name {
+      display: block;
+      font-size: 11px;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .wizard-panel {
+      display: none;
+      padding: clamp(18px, 4vw, 32px);
+      background: #fff;
+      border: 1px solid #ded8c9;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(25, 77, 59, .06);
+    }
+
+    .wizard-panel.active {
+      display: block;
+    }
+
+    .wizard-panel h3 {
+      color: #194D3B;
+      margin: 0 0 8px;
+    }
+
+    .wizard-description {
+      color: #68736c;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .wizard-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid #e8e4da;
+    }
+
+    .wizard-actions button {
+      min-width: 130px;
+    }
+
+    .wizard-actions .next-button {
+      margin-left: auto;
+    }
+
+    .area-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .area-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid #ded8c9;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .area-option:has(input:checked) {
+      border-color: #34745A;
+      background: #f0f5f0;
+    }
+
+    .area-option input {
+      width: auto;
+      margin-top: 4px;
+      flex: 0 0 auto;
+    }
+
+    .area-option span {
+      min-width: 0;
+    }
+
+    .area-option strong {
+      display: block;
+      color: #194D3B;
+      line-height: 1.3;
+    }
+
+    .area-option small {
+      display: block;
+      margin-top: 5px;
+      color: #68736c;
+      line-height: 1.4;
+    }
+
+    .wizard .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .wizard label {
+      min-width: 0;
+    }
+
+    .wizard label.full {
+      grid-column: 1 / -1;
+    }
+
+    .wizard input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
+    .wizard select,
+    .wizard textarea {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .wizard textarea {
+      resize: vertical;
+    }
+
+    .wizard .upload-box {
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
+      padding: 18px;
+      border: 1px dashed #9eaa9f;
+      border-radius: 10px;
+      background: #fafbf8;
+    }
+
+    .wizard .upload-box input[type="file"] {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    .wizard .upload-box small {
+      display: block;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .wizard .check-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .wizard .check-line input {
+      flex: 0 0 auto;
+      margin-top: 4px;
+    }
+
+    .wizard-message {
+      display: none;
+      margin-top: 18px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    .wizard-message.error {
+      display: block;
+      color: #8c2929;
+      background: #f9eaea;
+    }
+
+    .wizard-message.success {
+      display: block;
+      color: #194D3B;
+      background: #edf5ee;
+    }
+
+    .review-list {
+      display: grid;
+      grid-template-columns: minmax(130px, .7fr) 1.3fr;
+      border: 1px solid #e4e0d6;
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .review-list div {
+      min-width: 0;
+      padding: 12px;
+      border-bottom: 1px solid #e4e0d6;
+      overflow-wrap: anywhere;
+    }
+
+    .review-list div:nth-child(odd) {
+      background: #f6f5ef;
+      color: #526057;
+      font-weight: 700;
+    }
+
+    .review-list div:nth-last-child(-n+2) {
+      border-bottom: 0;
+    }
+
+    .wizard-result {
+      text-align: center;
+      padding: 20px 5px;
+    }
+
+    .wizard-result h2 {
+      color: #194D3B;
+    }
+
+    .wizard-result .result-code {
+      display: inline-block;
+      margin: 15px 0;
+      padding: 14px 22px;
+      border-radius: 9px;
+      background: #edf5ee;
+      color: #194D3B;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    @media (max-width: 650px) {
+      .wizard-tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .wizard .form-grid,
+      .area-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .wizard label.full {
+        grid-column: auto;
+      }
+
+      .wizard-actions button {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .review-list {
+        grid-template-columns: 1fr;
+      }
+
+      .review-list div:nth-child(odd) {
+        border-bottom: 0;
+        padding-bottom: 4px;
+      }
+
+      .review-list div:nth-child(even) {
+        padding-top: 4px;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <div class="brand-mark">FC<span>27</span></div>
+      <div class="brand-mark">FC</div>
 
       <div>
-        <p class="eyebrow" data-site="institucion">
-          Instituto Benigno Jiménez Garay
-        </p>
-        <h1 data-site="titulo">Feria Científica</h1>
+        <p class="eyebrow">Instituto Benigno Jiménez Garay</p>
+        <h1>Feria Científica</h1>
       </div>
 
       <nav>
@@ -28,261 +364,286 @@
     </div>
   </header>
 
-  <main class="container main-layout">
-    <section class="intro">
+  <main class="container wizard">
+    <div class="wizard-heading">
       <p class="eyebrow">Convocatoria estudiantil</p>
-
-      <h2 data-site="subtitulo">
-        Inscripción de proyectos científicos
-      </h2>
-
-      <p data-site="descripcion">
-        Completa la información del equipo y adjunta el anteproyecto.
-        Los campos marcados con * son obligatorios.
+      <h2>Inscripción de anteproyecto</h2>
+      <p>
+        Completa cada sección para registrar tu propuesta.
+        Debes proporcionar la información obligatoria antes de avanzar.
       </p>
 
-      <div class="notice">
-        <strong>Fecha de cierre:</strong>
-        <span data-site="fecha">20 de abril de 2027</span>.
-
-        <span data-site="aviso">
-          El código se asignará automáticamente según el área temática.
-        </span>
+      <div class="wizard-progress" id="wizardProgress">
+        <span class="done"></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
-    </section>
 
-    <form id="registroForm" class="panel" novalidate>
-      <div class="section-heading">
-        <span>01</span>
-        <div>
-          <h3>Área temática</h3>
-          <p>Selecciona el área principal de tu investigación.</p>
+      <div class="wizard-step-label">
+        <span id="stepDescription">Área temática</span>
+        <strong id="stepCounter">Paso 1 de 6</strong>
+      </div>
+    </div>
+
+    <form id="registroForm" novalidate>
+      <div class="wizard-tabs" aria-label="Secciones de inscripción">
+        <div class="wizard-tab active" data-tab="0">
+          <span class="wizard-tab-number">01</span>
+          <span class="wizard-tab-name">Área</span>
+        </div>
+        <div class="wizard-tab" data-tab="1">
+          <span class="wizard-tab-number">02</span>
+          <span class="wizard-tab-name">Proyecto</span>
+        </div>
+        <div class="wizard-tab" data-tab="2">
+          <span class="wizard-tab-number">03</span>
+          <span class="wizard-tab-name">Líder</span>
+        </div>
+        <div class="wizard-tab" data-tab="3">
+          <span class="wizard-tab-number">04</span>
+          <span class="wizard-tab-name">Integrantes</span>
+        </div>
+        <div class="wizard-tab" data-tab="4">
+          <span class="wizard-tab-number">05</span>
+          <span class="wizard-tab-name">Asesor</span>
+        </div>
+        <div class="wizard-tab" data-tab="5">
+          <span class="wizard-tab-number">06</span>
+          <span class="wizard-tab-name">Documento</span>
         </div>
       </div>
 
-      <div id="areas" class="area-grid"></div>
-      <input type="hidden" id="area" name="area" required>
+      <!-- PASO 1 -->
+      <section class="wizard-panel active" data-step="0">
+        <h3>Área temática</h3>
+        <p class="wizard-description">
+          Selecciona el área científica en la que se desarrolla tu investigación.
+        </p>
 
-      <div class="section-heading">
-        <span>02</span>
-        <div>
-          <h3>Información del proyecto</h3>
-          <p>Describe brevemente la propuesta.</p>
+        <div id="areas" class="area-grid"></div>
+        <input type="hidden" id="area" name="area">
+
+        <div class="wizard-message" id="message-0" role="alert"></div>
+
+        <div class="wizard-actions">
+          <span></span>
+          <button type="button" class="button primary next-button" data-next>
+            Continuar
+          </button>
         </div>
-      </div>
+      </section>
 
-      <div class="form-grid">
+      <!-- PASO 2 -->
+      <section class="wizard-panel" data-step="1">
+        <h3>Información del proyecto</h3>
+        <p class="wizard-description">
+          Registra los datos principales de la propuesta de investigación.
+        </p>
+
+        <div class="form-grid">
+          <label class="full">
+            Título del proyecto *
+            <input name="titulo" maxlength="180" required
+              placeholder="Escribe el título completo">
+          </label>
+
+          <label>
+            Tipo de proyecto *
+            <select name="tipo" required>
+              <option value="">Seleccionar</option>
+              <option>Experimental</option>
+              <option>Investigativo</option>
+            </select>
+          </label>
+
+          <label>
+            Turno *
+            <select name="turno" required>
+              <option value="">Seleccionar</option>
+              <option value="TM">Matutino</option>
+              <option value="TV">Vespertino</option>
+            </select>
+          </label>
+
+          <label class="full">
+            ¿Requiere laboratorio? *
+            <select name="laboratorio" required>
+              <option value="">Seleccionar</option>
+              <option>Sí</option>
+              <option>No</option>
+            </select>
+          </label>
+
+          <label class="full">
+            Resumen (máximo 250 palabras) *
+            <textarea name="resumen" id="resumen" rows="5"
+              required placeholder="Describe brevemente tu propuesta."></textarea>
+            <small><span id="wordCount">0</span>/250 palabras</small>
+          </label>
+        </div>
+
+        <div class="wizard-message" id="message-1" role="alert"></div>
+
+        <div class="wizard-actions">
+          <button type="button" class="button secondary" data-prev>Anterior</button>
+          <button type="button" class="button primary next-button" data-next>Continuar</button>
+        </div>
+      </section>
+
+      <!-- PASO 3 -->
+      <section class="wizard-panel" data-step="2">
+        <h3>Líder del equipo</h3>
+        <p class="wizard-description">
+          Introduce los datos del estudiante responsable de la inscripción.
+        </p>
+
+        <div class="form-grid">
+          <label class="full">
+            Nombre completo *
+            <input name="lider" maxlength="120" required>
+          </label>
+
+          <label>
+            Correo electrónico *
+            <input type="email" name="correo" required>
+          </label>
+
+          <label>
+            Confirmar correo electrónico *
+            <input type="email" id="correoConfirmacion" required>
+          </label>
+
+          <label>
+            Grado *
+            <select name="grado" required>
+              <option value="">Seleccionar</option>
+              <option>7.º</option>
+              <option>8.º</option>
+              <option>9.º</option>
+              <option>10.º</option>
+              <option>11.º</option>
+              <option>12.º</option>
+            </select>
+          </label>
+
+          <label>
+            Salón *
+            <input name="salon" maxlength="30" required
+              placeholder="Ej. 11-E">
+          </label>
+        </div>
+
+        <div class="wizard-message" id="message-2" role="alert"></div>
+
+        <div class="wizard-actions">
+          <button type="button" class="button secondary" data-prev>Anterior</button>
+          <button type="button" class="button primary next-button" data-next>Continuar</button>
+        </div>
+      </section>
+
+      <!-- PASO 4 -->
+      <section class="wizard-panel" data-step="3">
+        <h3>Integrantes del equipo</h3>
+        <p class="wizard-description">
+          Si el proyecto tiene más participantes, escribe sus nombres completos,
+          uno por línea. Si el líder trabaja individualmente, puedes continuar.
+        </p>
+
         <label class="full">
-          Título del proyecto *
-          <input
-            name="titulo"
-            maxlength="180"
-            required
-            placeholder="Escribe el título completo">
+          Otros integrantes
+          <textarea name="integrantes" rows="5"
+            placeholder="Nombre completo de cada integrante"></textarea>
         </label>
 
-        <label>
-          Tipo de proyecto *
-          <select name="tipo" required>
-            <option value="">Seleccionar</option>
-            <option>Experimental</option>
-            <option>Investigativo</option>
-          </select>
-        </label>
+        <div class="wizard-message" id="message-3" role="alert"></div>
 
-        <label>
-          Turno *
-          <select name="turno" required>
-            <option value="">Seleccionar</option>
-            <option value="TM">Matutino</option>
-            <option value="TV">Vespertino</option>
-          </select>
-        </label>
+        <div class="wizard-actions">
+          <button type="button" class="button secondary" data-prev>Anterior</button>
+          <button type="button" class="button primary next-button" data-next>Continuar</button>
+        </div>
+      </section>
 
-        <label>
-          ¿Requiere laboratorio? *
-          <select name="laboratorio" required>
-            <option value="">Seleccionar</option>
-            <option>Sí</option>
-            <option>No</option>
-          </select>
-        </label>
+      <!-- PASO 5 -->
+      <section class="wizard-panel" data-step="4">
+        <h3>Docente asesor</h3>
+        <p class="wizard-description">
+          Indica el nombre del docente que acompañará el desarrollo del proyecto.
+        </p>
 
         <label class="full">
-          Resumen (máximo 250 palabras) *
-          <textarea
-            name="resumen"
-            id="resumen"
-            rows="5"
-            required
-            placeholder="Presenta el propósito, método y alcance de la investigación."></textarea>
-          <small>
-            <span id="wordCount">0</span>/250 palabras
-          </small>
+          Nombre completo del docente asesor *
+          <input name="asesor" maxlength="120" required>
         </label>
-      </div>
 
-      <div class="section-heading">
-        <span>03</span>
-        <div>
-          <h3>Líder del equipo</h3>
-          <p>Datos de contacto y ubicación académica.</p>
+        <div class="wizard-message" id="message-4" role="alert"></div>
+
+        <div class="wizard-actions">
+          <button type="button" class="button secondary" data-prev>Anterior</button>
+          <button type="button" class="button primary next-button" data-next>Continuar</button>
         </div>
-      </div>
+      </section>
 
-      <div class="form-grid">
-        <label>
-          Nombre completo *
-          <input name="lider" required maxlength="120">
-        </label>
+      <!-- PASO 6 -->
+      <section class="wizard-panel" data-step="5">
+        <h3>Anteproyecto y confirmación</h3>
+        <p class="wizard-description">
+          Adjunta el documento y revisa los datos antes de completar la inscripción.
+        </p>
 
-        <label>
-          Correo electrónico *
-          <input type="email" name="correo" required>
-        </label>
-
-        <label>
-          Confirmar correo *
+        <div class="upload-box">
+          <strong>Documento del anteproyecto *</strong>
           <input
-            type="email"
-            id="correoConfirmacion"
+            type="file"
+            id="archivo"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             required>
+          <small id="fileInfo">
+            Formatos permitidos: PDF, DOC y DOCX.
+          </small>
+        </div>
+
+        <div style="margin-top:25px">
+          <h3>Revisión de la inscripción</h3>
+          <p class="wizard-description">
+            Comprueba que los datos sean correctos. Puedes volver a cualquier
+            sección para hacer cambios.
+          </p>
+          <div id="reviewSummary" class="review-list"></div>
+        </div>
+
+        <label class="check-line" style="margin-top:22px">
+          <input type="checkbox" id="declaracion" required>
+          <span>
+            Declaro que la información proporcionada es correcta y que
+            el proyecto corresponde al trabajo del equipo.
+          </span>
         </label>
 
-        <label>
-          Grado *
-          <select name="grado" required>
-            <option value="">Seleccionar</option>
-            <option>7.º</option>
-            <option>8.º</option>
-            <option>9.º</option>
-            <option>10.º</option>
-            <option>11.º</option>
-            <option>12.º</option>
-          </select>
-        </label>
+        <div class="wizard-message" id="message-5" role="alert"></div>
 
-        <label>
-          Salón *
-          <input
-            name="salon"
-            required
-            maxlength="30"
-            placeholder="Ej. 42">
-        </label>
-      </div>
-
-      <div class="section-heading">
-        <span>04</span>
-        <div>
-          <h3>Integrantes adicionales</h3>
-          <p>Escribe los nombres de los demás integrantes, si corresponde.</p>
+        <div class="wizard-actions">
+          <button type="button" class="button secondary" data-prev>Anterior</button>
+          <button type="submit" class="button primary" id="submitBtn">
+            Enviar inscripción
+          </button>
         </div>
-      </div>
-
-      <label class="full">
-        Otros integrantes (uno por línea)
-        <textarea
-          name="integrantes"
-          rows="3"
-          placeholder="Nombre completo de cada integrante"></textarea>
-      </label>
-
-      <div class="section-heading">
-        <span>05</span>
-        <div>
-          <h3>Docente asesor</h3>
-          <p>Información del docente responsable.</p>
-        </div>
-      </div>
-
-      <label class="full">
-        Nombre del docente asesor *
-        <input name="asesor" required maxlength="120">
-      </label>
-
-      <div class="section-heading">
-        <span>06</span>
-        <div>
-          <h3>Anteproyecto</h3>
-          <p>Adjunta el documento para inscripción.</p>
-        </div>
-      </div>
-
-      <label class="upload full">
-        Archivo del anteproyecto *
-        <input
-          type="file"
-          id="archivo"
-          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          required>
-        <small>
-          Formatos permitidos: PDF, DOC o DOCX. El límite real de carga
-          depende de la configuración del servidor.
-        </small>
-      </label>
-
-      <label class="check full">
-        <input type="checkbox" id="declaracion" required>
-        Declaro que la información proporcionada es correcta y que
-        el proyecto corresponde al trabajo del equipo.
-      </label>
-
-      <div
-        id="formMessage"
-        class="message"
-        role="status"
-        aria-live="polite">
-      </div>
-
-      <button
-        class="button primary full"
-        id="submitBtn"
-        type="submit">
-        Enviar inscripción
-      </button>
-
-      <p class="fine-print">
-        Al enviar, se registrarán los datos y el anteproyecto
-        para el proceso de organización de la Feria Científica.
-      </p>
+      </section>
     </form>
+
+    <div id="finalResult" class="panel hidden" aria-live="polite"></div>
   </main>
 
   <footer>
     <div class="container">
-      Feria Científica · Instituto Benigno Jiménez Garay
+      <p>Instituto Benigno Jiménez Garay · Feria Científica</p>
+      <p><a href="consulta.html">Consultar proyecto</a></p>
     </div>
   </footer>
 
   <script src="js/config.js"></script>
   <script src="js/registro.js"></script>
-  <script src="js/publico.js"></script>
-
-  <div id="convocatoriaModal" class="convocatoria-modal">
-    <div class="convocatoria-contenido">
-      <button
-        type="button"
-        id="cerrarConvocatoria"
-        class="convocatoria-cerrar"
-        aria-label="Cerrar convocatoria">
-        &times;
-      </button>
-
-      <img
-        id="imagenConvocatoria"
-        src="file_00000000cbe081f98ef02e19d0d15d99.png"
-        alt="Convocatoria de la Feria Científica">
-    </div>
-  </div>
-
-  <button
-    type="button"
-    id="abrirConvocatoria"
-    class="boton-ver-convocatoria">
-    Ver convocatoria
-  </button>
-
-  <script src="js/convocatoria.js"></script>
 </body>
-              </html>
+          </html>
