@@ -1,47 +1,55 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById("convocatoriaModal");
-    const cerrar = document.getElementById("cerrarConvocatoria");
-    const abrir = document.getElementById("abrirConvocatoria");
+  const modal = document.getElementById("convocatoriaModal");
+  const cerrar = document.getElementById("cerrarConvocatoria");
+  const abrir = document.getElementById("abrirConvocatoria");
 
-    if (!modal || !cerrar || !abrir) return;
+  if (!modal || !cerrar || !abrir) return;
 
-    const CLAVE = "feria2027_convocatoria_vista";
+  const CLAVE = "feria2027_convocatoria_vista";
 
-    function mostrarConvocatoria() {
-        modal.classList.add("activa");
-        document.body.style.overflow = "hidden";
+  function mostrarConvocatoria() {
+    modal.classList.add("activa");
+    document.body.style.overflow = "hidden";
+  }
+
+  function cerrarConvocatoria() {
+    modal.classList.remove("activa");
+    document.body.style.overflow = "";
+
+    try {
+      localStorage.setItem(CLAVE, "si");
+    } catch (error) {
+      console.warn("No se pudo guardar la preferencia de visualización.");
     }
+  }
 
-    function cerrarConvocatoria() {
-        modal.classList.remove("activa");
-        document.body.style.overflow = "";
+  let yaVista = false;
 
-        // Recordar que este visitante ya cerró el cartel
-        localStorage.setItem(CLAVE, "si");
+  try {
+    yaVista = localStorage.getItem(CLAVE) === "si";
+  } catch (error) {
+    yaVista = false;
+  }
+
+  if (!yaVista) {
+    mostrarConvocatoria();
+  }
+
+  cerrar.addEventListener("click", cerrarConvocatoria);
+  abrir.addEventListener("click", mostrarConvocatoria);
+
+  modal.addEventListener("click", function (evento) {
+    if (evento.target === modal) {
+      cerrarConvocatoria();
     }
+  });
 
-    // Mostrar automáticamente a visitantes nuevos
-    if (localStorage.getItem(CLAVE) !== "si") {
-        mostrarConvocatoria();
+  document.addEventListener("keydown", function (evento) {
+    if (
+      evento.key === "Escape" &&
+      modal.classList.contains("activa")
+    ) {
+      cerrarConvocatoria();
     }
-
-    // Cerrar con la X
-    cerrar.addEventListener("click", cerrarConvocatoria);
-
-    // Abrir nuevamente con el botón
-    abrir.addEventListener("click", mostrarConvocatoria);
-
-    // Cerrar al pulsar fuera del cartel
-    modal.addEventListener("click", function (evento) {
-        if (evento.target === modal) {
-            cerrarConvocatoria();
-        }
-    });
-
-    // Cerrar con Escape
-    document.addEventListener("keydown", function (evento) {
-        if (evento.key === "Escape" && modal.classList.contains("activa")) {
-            cerrarConvocatoria();
-        }
-    });
+  });
 });
