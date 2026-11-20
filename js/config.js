@@ -1,6 +1,6 @@
 /** Configuración central de Feria Científica. */
 window.FERIA_CONFIG = Object.freeze({
-  API_URL: "https://script.google.com/macros/s/AKfycbwll1MLFSAeCWyVY3JeZcn0PVD5_8duGLJvCMv7SUzJRYVSxNllgZXZjm8l0IqG71UQLg/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbzRhvoUGgOEcqq2p5sMxXScBiJMiggEfzKKmQxTCEmzbm3GYum940-fTl5pAM1Ebue5/exec",
 
   EDICION: 2027,
 
