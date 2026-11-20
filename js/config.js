@@ -1,13 +1,11 @@
-/**
- * FERIA CIENTÍFICA
- * Configuración general del frontend
- * Instituto Benigno Jiménez Garay
- */
-
+/** Configuración central de Feria Científica. */
 window.FERIA_CONFIG = Object.freeze({
   API_URL: "https://script.google.com/macros/s/AKfycbz8oOCzzyymWi-c5cbZuv2U5y0wfD6QfRf0iERKZUyT0kZNv2CbLe0KgeQpy60G3qOHFQ/exec",
+
   EDICION: 2027,
+
   ZONA_HORARIA: "America/Panama",
+
   COLORES: {
     principal: "#194D3B",
     secundario: "#34745A",
@@ -15,6 +13,7 @@ window.FERIA_CONFIG = Object.freeze({
     fondo: "#EDE8DA",
     blanco: "#FFFFFF"
   },
+
   TURNOS: {
     TM: "Matutino",
     TV: "Vespertino"
