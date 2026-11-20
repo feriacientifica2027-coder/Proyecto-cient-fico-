@@ -1,17 +1,17 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Consultar proyecto | Feria Científica 2027</title>
+  <meta name="theme-color" content="#194D3B">
+  <title>Consulta de proyectos | Feria Científica</title>
   <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
 
 <header class="site-header">
   <div class="container header-inner">
-    <div class="brand-mark">FC<span>27</span></div>
+    <div class="brand-mark">FC</div>
     <div>
       <p class="eyebrow">Instituto Benigno Jiménez Garay</p>
       <h1>Consulta de proyectos</h1>
@@ -19,26 +19,22 @@
     <nav>
       <a href="index.html">Inicio</a>
       <a href="inscripcion.html">Inscripción</a>
-      <a href="admin.html">Administración</a>
     </nav>
   </div>
 </header>
 
 <main class="container narrow">
-
   <section class="intro">
-    <p class="eyebrow">Seguimiento</p>
+    <p class="eyebrow">Seguimiento institucional</p>
     <h2>Consulta el estado de tu proyecto</h2>
     <p>
-      Introduce el código y el correo electrónico
-      que utilizaste al completar la inscripción.
+      Introduce el código asignado y el correo electrónico utilizado
+      durante la inscripción.
     </p>
   </section>
 
   <section class="panel">
-
     <form id="consultaForm">
-
       <label for="codigo">
         Código del proyecto
         <input
@@ -46,12 +42,11 @@
           id="codigo"
           name="codigo"
           required
-          placeholder="Ej. BIO-0001"
           maxlength="20"
-          autocomplete="off"
-          pattern="[A-Za-z]{2,3}-[0-9]{4}"
-          title="Introduce un código con el formato BIO-0001"
-        >
+          placeholder="Ej. TM-BIO-001"
+          pattern="(TM|TV)-(BIO|CAM|CCO|CSC|FMA|INY|QUI|SYM)-[0-9]{3}"
+          title="Formato: TM-BIO-001 o TV-QUI-001"
+          autocomplete="off">
       </label>
 
       <label for="correo">
@@ -61,37 +56,23 @@
           id="correo"
           name="correo"
           required
-          placeholder="Ej. equipo@correo.com"
           maxlength="160"
-          autocomplete="email"
-        >
+          placeholder="equipo@correo.com"
+          autocomplete="email">
       </label>
 
-      <button class="button primary full" type="submit">
-        Consultar
-      </button>
-
+      <button class="button primary full" type="submit">Consultar proyecto</button>
     </form>
 
-    <div
-      id="consultaResult"
-      class="result-box"
-      aria-live="polite"
-      role="status">
-    </div>
-
+    <div id="consultaResult" class="result-box" aria-live="polite" role="status"></div>
   </section>
-
 </main>
 
 <footer>
-  <div class="container">
-    Feria Científica 2027
-  </div>
+  <div class="container">Feria Científica · Instituto Benigno Jiménez Garay</div>
 </footer>
 
 <script src="js/config.js"></script>
 <script src="js/consulta.js"></script>
-
 </body>
 </html>
