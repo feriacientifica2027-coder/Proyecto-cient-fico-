@@ -1,8 +1,16 @@
 "use strict";
 
+/*
+ * PANEL ADMINISTRATIVO — FERIA CIENTÍFICA 2027
+ * La autorización real siempre corresponde al backend.
+ * No se guarda el token en localStorage ni sessionStorage.
+ */
+
 let token = "";
 let role = "";
 let edition = "2027";
+let currentUser = "";
+let currentView = "overview";
 
 const $ = id => document.getElementById(id);
 
@@ -14,26 +22,42 @@ const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
   "'": "&#39;"
 }[c]));
 
-const fmt = value =>
-  value instanceof Date
-    ? value.toLocaleDateString("es-PA")
-    : (value ? new Date(value).toLocaleDateString("es-PA") : "—");
+const fmt = value => {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? String(value)
+    : date.toLocaleDateString("es-PA");
+};
+
+function message(id, text, isError = false) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = text || "";
+  el.classList.toggle("error", Boolean(isError));
+}
+
+function setButtonBusy(button, busy, busyText, normalText) {
+  if (!button) return;
+  button.disabled = busy;
+  button.textContent = busy ? busyText : normalText;
+}
 
 async function call(accion, extra = {}) {
-  if (!window.FERIA_API_URL) {
-    throw new Error("Configura la URL de Apps Script en js/config.js.");
+  const endpoint = window.FERIA_API_URL || window.FERIA_CONFIG?.API_URL;
+
+  if (!endpoint) {
+    throw new Error("No se encontró la URL de Apps Script en js/config.js.");
   }
 
-  const response = await fetch(window.FERIA_API_URL, {
+  const response = await fetch(endpoint, {
     method: "POST",
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify({
       accion,
-      token,
       edicion: edition,
-      ...extra
+      ...extra,
+      token
     })
   });
 
@@ -41,387 +65,445 @@ async function call(accion, extra = {}) {
     throw new Error(`Error de conexión (${response.status}).`);
   }
 
-  return await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (_) {
+    throw new Error("El servidor devolvió una respuesta que no es JSON.");
+  }
+
+  return data;
 }
 
-function message(id, text, isError = false) {
-  const el = $(id);
+function showOnly(panelId) {
+  ["loginPanel", "passwordChangePanel", "dashboard"].forEach(id => {
+    $(id)?.classList.toggle("hidden", id !== panelId);
+  });
+}
 
-  if (el) {
-    el.textContent = text;
-    el.classList.toggle("error", isError);
-  }
+function showLogout(show) {
+  $("logoutBtn")?.classList.toggle("hidden", !show);
+}
+
+function normalizedRole(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
 /* INICIO DE SESIÓN */
 
-$("loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  message("loginMessage", "Verificando…");
+$("loginForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const button = $("loginForm").querySelector('[type="submit"]');
+  const identifier = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+
+  message("loginMessage", "Verificando credenciales…");
+  setButtonBusy(button, true, "Verificando…", "Iniciar sesión");
 
   try {
-    const d = await call("login", {
-      correo: $("loginEmail").value.trim(),
-      contrasena: $("loginPassword").value
+    const data = await call("login", {
+      usuario: identifier,
+      correo: identifier,
+      contrasena: password
     });
 
-    if (!d.ok) {
-      throw new Error(d.error || "No fue posible iniciar sesión.");
+    if (!data.ok) {
+      throw new Error(data.error || "No fue posible iniciar sesión.");
     }
 
-    token = d.token;
-    role = d.rol;
+    if (!data.token) {
+      throw new Error("El servidor no devolvió una sesión válida.");
+    }
 
-    $("loginPanel").classList.add("hidden");
-    $("dashboard").classList.remove("hidden");
-    $("logoutBtn").classList.remove("hidden");
+    token = data.token;
+    role = normalizedRole(data.rol);
+    currentUser = data.usuario || identifier;
 
-    $("sessionLabel").textContent = `${d.nombre} · ${d.rol}`;
+    if (data.debeCambiarClave === true || String(data.debeCambiarClave).toLowerCase() === "true") {
+      $("newUsername").value = data.usuario || identifier;
+      $("currentPassword").value = "";
+      $("newPassword").value = "";
+      $("confirmNewPassword").value = "";
+      message("passwordChangeMessage", "");
+      showOnly("passwordChangePanel");
+      showLogout(true);
+      $("sessionLabel").textContent = "Cambio de credenciales obligatorio";
+      $("currentPassword").focus();
+      return;
+    }
 
-    document.querySelectorAll(".admin-only").forEach(x => {
-      x.classList.toggle("hidden", role !== "administrador");
-    });
+    await enterDashboard(data);
 
-    await loadEditions();
-    await showView("overview");
-
-  } catch (err) {
-    message("loginMessage", err.message, true);
+  } catch (error) {
+    token = "";
+    role = "";
+    message("loginMessage", error.message || "Error de autenticación.", true);
+  } finally {
+    setButtonBusy(button, false, "Verificando…", "Iniciar sesión");
   }
 });
 
+/* CAMBIO OBLIGATORIO DE CREDENCIALES */
+
+$("passwordChangeForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const button = $("changePasswordBtn");
+  const currentPassword = $("currentPassword").value;
+  const newUsername = $("newUsername").value.trim();
+  const newPassword = $("newPassword").value;
+  const confirmation = $("confirmNewPassword").value;
+
+  message("passwordChangeMessage", "");
+
+  if (newUsername.length < 3) {
+    message("passwordChangeMessage", "El nombre de usuario debe tener al menos 3 caracteres.", true);
+    return;
+  }
+
+  if (newPassword.length < 12) {
+    message("passwordChangeMessage", "La nueva contraseña debe tener al menos 12 caracteres.", true);
+    return;
+  }
+
+  if (newPassword !== confirmation) {
+    message("passwordChangeMessage", "Las contraseñas nuevas no coinciden.", true);
+    return;
+  }
+
+  if (newPassword === currentPassword) {
+    message("passwordChangeMessage", "La nueva contraseña debe ser diferente de la temporal.", true);
+    return;
+  }
+
+  setButtonBusy(button, true, "Guardando…", "Guardar nuevas credenciales");
+
+  try {
+    const data = await call("cambiarCredenciales", {
+      contrasenaActual: currentPassword,
+      nuevoUsuario: newUsername,
+      nuevaContrasena: newPassword
+    });
+
+    if (!data.ok) {
+      throw new Error(data.error || "No se pudieron actualizar las credenciales.");
+    }
+
+    if (!data.token) {
+      throw new Error("Las credenciales se actualizaron, pero el servidor no devolvió una nueva sesión. Inicia sesión nuevamente.");
+    }
+
+    token = data.token;
+    currentUser = data.usuario || newUsername;
+    role = normalizedRole(data.rol || role);
+
+    message("passwordChangeMessage", "Credenciales actualizadas. Abriendo el panel…");
+    await enterDashboard({
+      ...data,
+      nombre: data.nombre || currentUser,
+      rol: data.rol || role
+    });
+
+  } catch (error) {
+    message("passwordChangeMessage", error.message || "No se pudo completar el cambio.", true);
+  } finally {
+    setButtonBusy(button, false, "Guardando…", "Guardar nuevas credenciales");
+  }
+});
+
+/* ENTRADA AL PANEL */
+
+async function enterDashboard(userData = {}) {
+  if (!["administrador", "evaluador", "consulta"].includes(role)) {
+    throw new Error("La cuenta no tiene un rol reconocido.");
+  }
+
+  showOnly("dashboard");
+  showLogout(true);
+
+  const displayName = userData.nombre || currentUser || "Usuario";
+  $("sessionLabel").textContent = `${displayName} · ${role}`;
+
+  document.querySelectorAll(".admin-only").forEach(element => {
+    element.classList.toggle("hidden", role !== "administrador");
+  });
+
+  await loadEditions();
+  await showView("overview");
+}
+
 /* CERRAR SESIÓN */
 
-$("logoutBtn").addEventListener("click", async () => {
+$("logoutBtn")?.addEventListener("click", async () => {
   try {
-    await call("logout");
-  } catch (_) {}
+    if (token) await call("logout");
+  } catch (_) {
+    // La sesión local se cierra aunque el servidor no responda.
+  }
 
   token = "";
   role = "";
+  currentUser = "";
+  edition = "2027";
 
-  $("dashboard").classList.add("hidden");
-  $("loginPanel").classList.remove("hidden");
-  $("logoutBtn").classList.add("hidden");
   $("loginPassword").value = "";
-});
+  $("currentPassword").value = "";
+  $("newPassword").value = "";
+  $("confirmNewPassword").value = "";
 
-$("refreshBtn").addEventListener("click", () => loadCurrentView());
-
-$("editionSelect").addEventListener("change", async e => {
-  edition = e.target.value;
-  await loadCurrentView();
-});
-
-document.querySelectorAll(".nav-item[data-view]").forEach(btn => {
-  btn.addEventListener("click", () => showView(btn.dataset.view));
+  showOnly("loginPanel");
+  showLogout(false);
+  $("sessionLabel").textContent = "Acceso restringido";
+  message("loginMessage", "Sesión cerrada.");
 });
 
 /* EDICIONES */
 
 async function loadEditions() {
-  const d = await call("edicionesListar");
+  const select = $("editionSelect");
+  if (!select) return;
 
-  if (!d.ok) {
-    throw new Error(d.error || "No se pudieron cargar las ediciones.");
+  try {
+    const data = await call("edicionesListar");
+
+    if (!data.ok) {
+      throw new Error(data.error || "No se pudieron cargar las ediciones.");
+    }
+
+    const editions = data.ediciones || [];
+
+    select.innerHTML = editions.map(item => {
+      const year = item.Anio || item.anio || item.Edicion || item.edicion;
+      const name = item.Nombre || item.nombre || year;
+      return `<option value="${esc(year)}">${esc(name)}</option>`;
+    }).join("");
+
+    if (!editions.length) {
+      select.innerHTML = '<option value="2027">Feria Científica 2027</option>';
+    }
+
+    const preferred = editions.find(item =>
+      String(item.Anio || item.anio || item.Edicion || item.edicion) === "2027"
+    );
+
+    edition = preferred
+      ? "2027"
+      : (select.value || "2027");
+
+    select.value = edition;
+  } catch (error) {
+    select.innerHTML = '<option value="2027">Feria Científica 2027</option>';
+    edition = "2027";
+    if (role === "administrador") {
+      console.warn("No se pudieron listar las ediciones:", error);
+    }
   }
-
-  const list = d.ediciones || [];
-
-  $("editionSelect").innerHTML = list.map(x =>
-    `<option value="${esc(x.Anio)}">${esc(x.Nombre || x.Anio)}</option>`
-  ).join("");
-
-  if (!list.length) {
-    $("editionSelect").innerHTML =
-      '<option value="2027">2027</option>';
-  }
-
-  edition = $("editionSelect").value || "2027";
 }
 
-/* VISTAS DEL PANEL */
+$("editionSelect")?.addEventListener("change", async event => {
+  edition = event.target.value || "2027";
+  await loadCurrentView();
+});
+
+/* NAVEGACIÓN Y VISTAS */
 
 const titles = {
-  overview: [
-    "Resumen general",
-    "Indicadores de la edición seleccionada."
-  ],
-  projects: [
-    "Proyectos registrados",
-    "Inscripciones y evaluación."
-  ],
-  editions: [
-    "Administrar ediciones",
-    "Convocatorias independientes por año."
-  ],
-  calendar: [
-    "Calendario",
-    "Fechas y actividades institucionales."
-  ],
-  documents: [
-    "Expedientes y documentos",
-    "Documentación y versiones por proyecto."
-  ],
-  credentials: [
-    "Acreditaciones QR",
-    "Credenciales de participantes y equipo."
-  ],
-  surveys: [
-    "Encuestas",
-    "Instrumentos y respuestas."
-  ],
-  partners: [
-    "Colaboradores",
-    "Aportes no monetarios y compromisos."
-  ],
-  communications: [
-    "Comunicados institucionales",
-    "Mensajes segmentados e historial de envíos."
-  ],
-  users: [
-    "Usuarios y permisos",
-    "Cuentas administrativas y alcance por edición."
-  ],
-  content: [
-    "Contenido público",
-    "Información de la convocatoria."
-  ]
+  overview: ["Resumen general", "Indicadores de la edición seleccionada."],
+  projects: ["Proyectos registrados", "Inscripciones y evaluación de anteproyectos."],
+  editions: ["Administrar ediciones", "Convocatorias independientes por año."],
+  calendar: ["Calendario", "Fechas y actividades institucionales."],
+  documents: ["Expedientes y documentos", "Documentación y versiones por proyecto."],
+  credentials: ["Acreditaciones QR", "Credenciales de participantes y equipo."],
+  surveys: ["Encuestas", "Instrumentos y respuestas."],
+  partners: ["Colaboradores", "Aportes no monetarios y compromisos."],
+  communications: ["Comunicados institucionales", "Mensajes segmentados e historial de envíos."],
+  users: ["Usuarios y permisos", "Cuentas administrativas y alcance por edición."],
+  content: ["Contenido público", "Información de la convocatoria."]
 };
 
+const adminViews = [
+  "editions", "calendar", "documents", "credentials",
+  "surveys", "partners", "users", "content", "communications"
+];
+
+document.querySelectorAll(".nav-item[data-view]").forEach(button => {
+  button.addEventListener("click", () => showView(button.dataset.view));
+});
+
 async function showView(name) {
-  if (
-    role !== "administrador" &&
-    [
-      "editions",
-      "calendar",
-      "documents",
-      "credentials",
-      "surveys",
-      "partners",
-      "users",
-      "content",
-      "communications"
-    ].includes(name)
-  ) {
+  if (!titles[name]) return;
+
+  if (role !== "administrador" && adminViews.includes(name)) {
     return;
   }
 
-  document.querySelectorAll(".view-panel").forEach(x => {
-    x.classList.add("hidden");
+  currentView = name;
+
+  document.querySelectorAll(".view-panel").forEach(panel => {
+    panel.classList.add("hidden");
   });
 
   $("view-" + name)?.classList.remove("hidden");
 
-  document.querySelectorAll(".nav-item[data-view]").forEach(x => {
-    x.classList.toggle("active", x.dataset.view === name);
+  document.querySelectorAll(".nav-item[data-view]").forEach(button => {
+    button.classList.toggle("active", button.dataset.view === name);
   });
 
-  $("viewTitle").textContent = titles[name]?.[0] || "Panel";
-  $("viewSubtitle").textContent = titles[name]?.[1] || "";
+  $("viewTitle").textContent = titles[name][0];
+  $("viewSubtitle").textContent = titles[name][1];
 
   await loadView(name);
 }
 
 async function loadCurrentView() {
-  const active = document.querySelector(".nav-item.active");
-
-  if (active) {
-    await loadView(active.dataset.view);
-  }
+  await loadView(currentView);
 }
 
 async function loadView(name) {
   try {
     if (name === "overview") await loadOverview();
     if (name === "projects") await loadProjects();
-    if (name === "communications") await loadCommunications();
     if (name === "editions") await loadEditionsList();
+    if (name === "communications") await loadCommunications();
 
-    if (name === "calendar") {
-      await loadModule("calendario", "calendarList");
+    const modules = {
+      calendar: ["calendario", "calendarList"],
+      documents: ["documentos", "documentsList"],
+      credentials: ["acreditaciones", "credentialsList"],
+      surveys: ["encuestas", "surveysList"],
+      partners: ["colaboradores", "partnersList"]
+    };
+
+    if (modules[name]) {
+      await loadModule(modules[name][0], modules[name][1]);
     }
-
-    if (name === "documents") {
-      await loadModule("documentos", "documentsList");
-    }
-
-    if (name === "credentials") {
-      await loadModule("acreditaciones", "credentialsList");
-    }
-
-    if (name === "surveys") {
-      await loadModule("encuestas", "surveysList");
-    }
-
-    if (name === "partners") {
-      await loadModule("colaboradores", "partnersList");
-    }
-
-  } catch (e) {
-    alert(e.message || "No se pudo cargar esta sección.");
+  } catch (error) {
+    alert(error.message || "No se pudo cargar esta sección.");
   }
 }
+
+$("refreshBtn")?.addEventListener("click", loadCurrentView);
 
 /* RESUMEN GENERAL */
 
 async function loadOverview() {
-  const d = await call("panelResumen");
+  const data = await call("panelResumen");
 
-  if (!d.ok) {
-    throw new Error(d.error);
+  if (!data.ok) {
+    throw new Error(data.error || "No se pudo cargar el resumen.");
   }
 
-  const r = d.resumen;
+  const summary = data.resumen || {};
+  const byArea = summary.porArea || {};
+  const byGrade = summary.porGrado || {};
+  const byStatus = summary.porEstado || {};
 
   const stats = [
-    ["Proyectos", r.total],
-    ["Áreas temáticas", Object.keys(r.porArea).length],
-    ["Grados participantes", Object.keys(r.porGrado).length],
-    ["Estados registrados", Object.keys(r.porEstado).length]
+    ["Proyectos", summary.total || 0],
+    ["Áreas temáticas", Object.keys(byArea).length],
+    ["Grados participantes", Object.keys(byGrade).length],
+    ["Estados registrados", Object.keys(byStatus).length]
   ];
 
-  $("overviewStats").innerHTML = stats.map(([a, b]) =>
-    `<article class="metric-card">
-      <span>${esc(a)}</span>
-      <b>${Number(b) || 0}</b>
-    </article>`
-  ).join("");
+  $("overviewStats").innerHTML = stats.map(([label, value]) => `
+    <article class="metric-card">
+      <span>${esc(label)}</span>
+      <b>${Number(value) || 0}</b>
+    </article>
+  `).join("");
 
-  renderBars("areaStats", r.porArea);
-  renderBars("gradeStats", r.porGrado);
+  renderBars("areaStats", byArea);
+  renderBars("gradeStats", byGrade);
 }
 
-function renderBars(id, obj) {
-  const vals = Object.entries(obj || {})
-    .sort((a, b) => b[1] - a[1]);
+function renderBars(containerId, valuesObject) {
+  const container = $(containerId);
+  if (!container) return;
 
-  const max = Math.max(1, ...vals.map(x => x[1]));
+  const values = Object.entries(valuesObject || {})
+    .sort((a, b) => Number(b[1]) - Number(a[1]));
 
-  $(id).innerHTML = vals.length
-    ? vals.map(([k, v]) =>
-      `<div class="bar-row">
-        <div>
-          <span>${esc(k || "Sin dato")}</span>
-          <b>${v}</b>
-        </div>
-        <i>
-          <span style="width:${Math.round(v / max * 100)}%"></span>
-        </i>
-      </div>`
-    ).join("")
+  const max = Math.max(1, ...values.map(item => Number(item[1]) || 0));
+
+  container.innerHTML = values.length
+    ? values.map(([label, amount]) => {
+        const number = Number(amount) || 0;
+        const width = Math.max(0, Math.min(100, Math.round(number / max * 100)));
+        return `
+          <div class="bar-row">
+            <div>
+              <span>${esc(label || "Sin dato")}</span>
+              <b>${number}</b>
+            </div>
+            <i><span style="width:${width}%"></span></i>
+          </div>
+        `;
+      }).join("")
     : '<p class="muted">Sin registros para esta edición.</p>';
 }
 
-/* PROYECTOS Y EVALUACIÓN */
+/* ANTEPROYECTOS */
 
 async function loadProjects() {
-  const d = await call("listar", {
+  const data = await call("listar", {
     turno: $("projectTurnFilter")?.value || ""
   });
 
-  if (!d.ok) {
-    throw new Error(d.error || "No se pudieron cargar los proyectos.");
+  if (!data.ok) {
+    throw new Error(data.error || "No se pudieron cargar los proyectos.");
   }
 
-  const projects = (d.proyectos || []).map(x => ({
-    codigo: x.Codigo,
-    area: x.Area,
-    titulo: x.Titulo,
-    lider: x.Lider,
-    grado: x.Grado,
-    salon: x.Salon,
-    estado: x.Estado,
-    correo: x.Correo,
-    tipo: x.Tipo,
-    turno: x.Turno,
-    asesor: x.Asesor,
-    observaciones: x.Observaciones,
-    edicion: x.Edicion
-  }));
+  const projects = data.proyectos || [];
+  const canEvaluate = role === "administrador" || role === "evaluador";
 
-  $("projectsBody").innerHTML = projects.map(x =>
-    `<tr>
-      <td><b>${esc(x.codigo)}</b></td>
-      <td>${esc(x.area)}</td>
-      <td>${esc(x.titulo)}</td>
-      <td>${esc(x.lider)}</td>
-      <td>${esc(x.grado)} · ${esc(x.salon)}</td>
-      <td>${esc(x.estado)}</td>
+  $("projectsBody").innerHTML = projects.map(project => `
+    <tr>
+      <td><b>${esc(project.Codigo)}</b></td>
+      <td>${esc(project.Area)}</td>
+      <td>${esc(project.Titulo)}</td>
+      <td>${esc(project.Lider)}</td>
+      <td>${esc(project.Grado)} · ${esc(project.Salon)}</td>
+      <td>${esc(project.Estado)}</td>
       <td>
-        <button
-          type="button"
-          class="btn btn-small"
-          data-project-code="${esc(x.codigo)}">
-          Evaluar
-        </button>
+        ${canEvaluate ? `
+          <button
+            type="button"
+            class="btn btn-small"
+            data-project-code="${esc(project.Codigo)}">
+            Evaluar
+          </button>
+        ` : '<span class="muted">Solo consulta</span>'}
       </td>
-    </tr>`
-  ).join("") ||
-  '<tr><td colspan="7">No hay proyectos registrados.</td></tr>';
+    </tr>
+  `).join("") || '<tr><td colspan="7">No hay proyectos registrados.</td></tr>';
 }
+
+$("projectTurnFilter")?.addEventListener("change", loadProjects);
 
 /* DETALLE Y EVALUACIÓN INDIVIDUAL */
 
 function projectModal() {
   let modal = $("projectEvaluationModal");
-
   if (modal) return modal;
 
   modal = document.createElement("div");
   modal.id = "projectEvaluationModal";
-
-  modal.style.cssText = `
-    position:fixed;
-    inset:0;
-    z-index:9999;
-    background:rgba(0,0,0,.65);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:16px;
-    overflow-y:auto;
-  `;
-
+  modal.className = "admin-modal";
   modal.innerHTML = `
-    <section style="
-      background:white;
-      width:100%;
-      max-width:680px;
-      max-height:90vh;
-      overflow-y:auto;
-      border-radius:14px;
-      padding:24px;
-      color:#243247;
-    ">
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:12px;
-      ">
-        <h2 style="margin:0">Evaluación del proyecto</h2>
-
-        <button
-          type="button"
-          id="closeProjectModal"
-          aria-label="Cerrar"
-          style="font-size:24px;border:0;background:none;cursor:pointer">
-          ×
-        </button>
+    <section class="admin-modal-card">
+      <div class="admin-modal-heading">
+        <h2>Evaluación del proyecto</h2>
+        <button type="button" id="closeProjectModal" aria-label="Cerrar">×</button>
       </div>
 
-      <div id="projectDetails" style="margin-top:20px"></div>
+      <div id="projectDetails" class="project-details"></div>
 
       <form id="projectEvaluationForm">
         <input type="hidden" id="evaluationCode">
 
         <label for="evaluationStatus">Estado del proyecto</label>
-
-        <select
-          id="evaluationStatus"
-          required
-          style="width:100%;padding:11px;margin:8px 0 16px">
+        <select id="evaluationStatus" required>
           <option value="Recibido">Recibido</option>
           <option value="Seleccionado">Seleccionado</option>
           <option value="No seleccionado">No seleccionado</option>
@@ -429,34 +511,22 @@ function projectModal() {
         </select>
 
         <label for="evaluationObservations">Observaciones del comité</label>
-
         <textarea
           id="evaluationObservations"
           rows="5"
           maxlength="3000"
-          style="width:100%;padding:11px;margin:8px 0 16px"
-          placeholder="Escribe las observaciones correspondientes..."></textarea>
+          placeholder="Escribe las observaciones correspondientes…"></textarea>
 
-        <label style="display:flex;align-items:center;gap:9px">
+        <label class="inline-check">
           <input type="checkbox" id="evaluationNotify" checked>
           Notificar el cambio al correo del participante
         </label>
 
-        <p id="evaluationMessage" role="status"></p>
+        <p id="evaluationMessage" class="message" role="status"></p>
 
-        <div style="
-          display:flex;
-          justify-content:flex-end;
-          gap:10px;
-          margin-top:18px;
-        ">
-          <button type="button" id="cancelProjectEvaluation">
-            Cancelar
-          </button>
-
-          <button type="submit" id="saveProjectEvaluation">
-            Guardar evaluación
-          </button>
+        <div class="modal-actions">
+          <button type="button" class="button secondary" id="cancelProjectEvaluation">Cancelar</button>
+          <button type="submit" class="button primary" id="saveProjectEvaluation">Guardar evaluación</button>
         </div>
       </form>
     </section>
@@ -466,53 +536,31 @@ function projectModal() {
 
   $("closeProjectModal").addEventListener("click", closeProjectModal);
   $("cancelProjectEvaluation").addEventListener("click", closeProjectModal);
-
-  modal.addEventListener("click", e => {
-    if (e.target === modal) closeProjectModal();
+  modal.addEventListener("click", event => {
+    if (event.target === modal) closeProjectModal();
   });
-
-  $("projectEvaluationForm").addEventListener(
-    "submit",
-    saveProjectEvaluation
-  );
+  $("projectEvaluationForm").addEventListener("submit", saveProjectEvaluation);
 
   return modal;
 }
 
 function closeProjectModal() {
-  const modal = $("projectEvaluationModal");
-  if (modal) modal.style.display = "none";
+  $("projectEvaluationModal")?.classList.remove("open");
 }
 
 async function openProjectEvaluation(code) {
   try {
-    const d = await call("listar", {
+    const data = await call("listar", {
       turno: $("projectTurnFilter")?.value || ""
     });
 
-    if (!d.ok) {
-      throw new Error(d.error || "No se pudieron consultar los proyectos.");
+    if (!data.ok) {
+      throw new Error(data.error || "No se pudieron consultar los proyectos.");
     }
 
-    const raw = (d.proyectos || []).find(
-      x => String(x.Codigo) === String(code)
+    const project = (data.proyectos || []).find(
+      item => String(item.Codigo) === String(code)
     );
-
-    const project = raw ? {
-      codigo: raw.Codigo,
-      area: raw.Area,
-      titulo: raw.Titulo,
-      lider: raw.Lider,
-      grado: raw.Grado,
-      salon: raw.Salon,
-      estado: raw.Estado,
-      correo: raw.Correo,
-      tipo: raw.Tipo,
-      turno: raw.Turno,
-      asesor: raw.Asesor,
-      observaciones: raw.Observaciones,
-      edicion: raw.Edicion
-    } : null;
 
     if (!project) {
       throw new Error("No se encontró el proyecto seleccionado.");
@@ -520,328 +568,280 @@ async function openProjectEvaluation(code) {
 
     projectModal();
 
-    $("evaluationCode").value = project.codigo;
-    $("evaluationStatus").value = project.estado || "Recibido";
-    $("evaluationObservations").value = project.observaciones || "";
+    $("evaluationCode").value = project.Codigo || "";
+    $("evaluationStatus").value = project.Estado || "Recibido";
+    $("evaluationObservations").value = project.Observaciones || "";
 
     $("projectDetails").innerHTML = `
-      <div style="
-        background:#f3f6fa;
-        padding:16px;
-        border-radius:10px;
-        line-height:1.8;
-      ">
-        <p><b>Código:</b> ${esc(project.codigo)}</p>
-        <p><b>Título:</b> ${esc(project.titulo)}</p>
-        <p><b>Área:</b> ${esc(project.area)}</p>
-        <p><b>Líder:</b> ${esc(project.lider)}</p>
-        <p><b>Grado y salón:</b>
-          ${esc(project.grado)} · ${esc(project.salon)}
-        </p>
-        <p><b>Asesor:</b> ${esc(project.asesor || "No disponible")}</p>
-        <p><b>Correo:</b> ${esc(project.correo || "No disponible")}</p>
-        <p><b>Tipo:</b> ${esc(project.tipo || "No especificado")}</p>
-        <p><b>Estado actual:</b> ${esc(project.estado)}</p>
-      </div>
+      <p><b>Código:</b> ${esc(project.Codigo)}</p>
+      <p><b>Título:</b> ${esc(project.Titulo)}</p>
+      <p><b>Área:</b> ${esc(project.Area)}</p>
+      <p><b>Líder:</b> ${esc(project.Lider)}</p>
+      <p><b>Grado y salón:</b> ${esc(project.Grado)} · ${esc(project.Salon)}</p>
+      <p><b>Asesor:</b> ${esc(project.Asesor || "No disponible")}</p>
+      <p><b>Correo:</b> ${esc(project.Correo || "No disponible")}</p>
+      <p><b>Estado actual:</b> ${esc(project.Estado)}</p>
     `;
 
-    $("evaluationMessage").textContent = "";
-    $("projectEvaluationModal").style.display = "flex";
-
+    message("evaluationMessage", "");
+    $("projectEvaluationModal").classList.add("open");
   } catch (error) {
     alert(error.message);
   }
 }
 
-$("projectsBody").addEventListener("click", e => {
-  const button = e.target.closest("[data-project-code]");
-
-  if (!button) return;
-
-  openProjectEvaluation(button.dataset.projectCode);
+$("projectsBody")?.addEventListener("click", event => {
+  const button = event.target.closest("[data-project-code]");
+  if (button) openProjectEvaluation(button.dataset.projectCode);
 });
 
-/* GUARDAR EVALUACIÓN */
-
-async function saveProjectEvaluation(e) {
-  e.preventDefault();
+async function saveProjectEvaluation(event) {
+  event.preventDefault();
 
   const button = $("saveProjectEvaluation");
-  const messageElement = $("evaluationMessage");
-
-  button.disabled = true;
-  button.textContent = "Guardando...";
-  messageElement.textContent = "";
+  setButtonBusy(button, true, "Guardando…", "Guardar evaluación");
+  message("evaluationMessage", "");
 
   try {
-    const d = await call("actualizar", {
+    const data = await call("actualizar", {
       codigo: $("evaluationCode").value,
       estado: $("evaluationStatus").value,
       observaciones: $("evaluationObservations").value,
       notificar: $("evaluationNotify").checked
     });
 
-    if (!d.ok) {
-      throw new Error(d.error || "No se pudo guardar la evaluación.");
+    if (!data.ok) {
+      throw new Error(data.error || "No se pudo guardar la evaluación.");
     }
 
-    messageElement.textContent = d.notificado
-      ? "Evaluación guardada y participante notificado."
-      : "Evaluación guardada correctamente.";
+    message(
+      "evaluationMessage",
+      data.notificado
+        ? "Evaluación guardada y participante notificado."
+        : "Evaluación guardada correctamente."
+    );
 
     await loadProjects();
-
-    setTimeout(closeProjectModal, 1200);
-
+    window.setTimeout(closeProjectModal, 1000);
   } catch (error) {
-    messageElement.textContent = error.message;
-    messageElement.classList.add("error");
-
+    message("evaluationMessage", error.message, true);
   } finally {
-    button.disabled = false;
-    button.textContent = "Guardar evaluación";
+    setButtonBusy(button, false, "Guardando…", "Guardar evaluación");
   }
 }
 
-/* LISTA DE EDICIONES */
+/* ADMINISTRACIÓN DE EDICIONES */
 
 async function loadEditionsList() {
-  const d = await call("edicionesListar");
+  const data = await call("edicionesListar");
+  if (!data.ok) throw new Error(data.error || "No se pudieron cargar las ediciones.");
 
-  if (!d.ok) {
-    throw new Error(d.error);
-  }
-
-  $("editionsList").innerHTML = (d.ediciones || []).map(x =>
-    `<article class="list-row">
-      <b>${esc(x.Nombre)}</b>
+  $("editionsList").innerHTML = (data.ediciones || []).map(item => `
+    <article class="list-row">
+      <b>${esc(item.Nombre || item.Anio)}</b>
       <span>
-        ${esc(x.Estado)} · Cierre:
-        ${esc(x.FechaCierre || "No definido")}
+        ${esc(item.Estado || "Sin estado")} · Cierre:
+        ${esc(item.FechaCierre || "No definido")}
       </span>
-    </article>`
-  ).join("");
+    </article>
+  `).join("") || '<p class="muted">Todavía no hay ediciones registradas.</p>';
 }
 
-$("editionForm").addEventListener("submit", async e => {
-  e.preventDefault();
+$("editionForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const button = $("editionForm").querySelector('[type="submit"]');
+  setButtonBusy(button, true, "Guardando…", "Guardar edición");
 
   try {
-    const d = await call("edicionGuardar", {
+    const data = await call("edicionGuardar", {
       anio: $("edYear").value,
-      nombre: $("edName").value,
+      nombre: $("edName").value.trim(),
       estado: $("edStatus").value,
       fechaCierre: $("edClose").value,
-      descripcion: $("edDescription").value
+      descripcion: $("edDescription").value.trim()
     });
 
-    if (!d.ok) {
-      throw new Error(d.error);
-    }
+    if (!data.ok) throw new Error(data.error || "No se pudo guardar la edición.");
 
-    message("editionMessage", "Edición guardada.");
-
+    message("editionMessage", "Edición guardada correctamente.");
+    $("editionForm").reset();
     await loadEditions();
     await loadEditionsList();
-
-  } catch (x) {
-    message("editionMessage", x.message, true);
+  } catch (error) {
+    message("editionMessage", error.message, true);
+  } finally {
+    setButtonBusy(button, false, "Guardando…", "Guardar edición");
   }
 });
 
 /* CALENDARIO */
 
-$("calendarForm").addEventListener("submit", async e => {
-  e.preventDefault();
+$("calendarForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const button = $("calendarForm").querySelector('[type="submit"]');
+  setButtonBusy(button, true, "Guardando…", "Agregar actividad");
 
   try {
-    const d = await call("moduloGuardar", {
+    const data = await call("moduloGuardar", {
       modulo: "calendario",
       datos: {
-        Titulo: $("calTitle").value,
-        Tipo: $("calType").value,
+        Titulo: $("calTitle").value.trim(),
+        Tipo: $("calType").value.trim(),
         FechaInicio: $("calStart").value,
         FechaFin: $("calEnd").value,
-        Descripcion: $("calDescription").value,
+        Descripcion: $("calDescription").value.trim(),
         Visible: true
       }
     });
 
-    if (!d.ok) {
-      throw new Error(d.error);
-    }
+    if (!data.ok) throw new Error(data.error || "No se pudo guardar la actividad.");
 
     $("calendarForm").reset();
-
     await loadModule("calendario", "calendarList");
-
-  } catch (x) {
-    alert(x.message);
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setButtonBusy(button, false, "Guardando…", "Agregar actividad");
   }
 });
 
 /* USUARIOS Y PERMISOS */
 
-$("userForm").addEventListener("submit", async e => {
-  e.preventDefault();
+$("userForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const button = $("userForm").querySelector('[type="submit"]');
+  setButtonBusy(button, true, "Creando…", "Crear usuario");
 
   try {
-    const d = await call("crearUsuario", {
-      nombre: $("userName").value,
-      correo: $("userEmail").value,
+    const data = await call("crearUsuario", {
+      nombre: $("userName").value.trim(),
+      correo: $("userEmail").value.trim(),
       rol: $("userRole").value,
       contrasena: $("userPass").value,
-      edicionesAsignadas: $("userEditions").value || "*"
+      edicionesAsignadas: $("userEditions").value.trim() || "*"
     });
 
-    if (!d.ok) {
-      throw new Error(d.error);
-    }
+    if (!data.ok) throw new Error(data.error || "No se pudo crear el usuario.");
 
-    message(
-      "userMessage",
-      "Usuario creado correctamente."
-    );
-
+    message("userMessage", "Usuario creado. Deberá cambiar su contraseña temporal al iniciar sesión.");
     $("userForm").reset();
-
-  } catch (x) {
-    message("userMessage", x.message, true);
+  } catch (error) {
+    message("userMessage", error.message, true);
+  } finally {
+    setButtonBusy(button, false, "Creando…", "Crear usuario");
   }
 });
 
 /* COMUNICADOS INSTITUCIONALES */
 
 async function loadCommunications() {
-  const d = await call("comunicadosListar");
-
-  if (!d.ok) {
-    throw new Error(d.error || "No se pudo cargar el historial.");
+  const data = await call("comunicadosListar");
+  if (!data.ok) {
+    throw new Error(data.error || "No se pudo cargar el historial de comunicados.");
   }
 
-  const rows = d.comunicados || [];
-
+  const rows = data.comunicados || [];
   $("communicationsList").innerHTML = rows.length
-    ? rows.map(x =>
-      `<article class="list-row">
-        <b>${esc(x.Asunto)}</b>
-        <span>
-          ${esc(x.Estado)} ·
-          ${esc(x.Enviados || 0)} enviados /
-          ${esc(x.Fallidos || 0)} fallidos ·
-          ${esc(fmt(x.Fecha))}
-        </span>
-      </article>`
-    ).join("")
+    ? rows.map(item => `
+        <article class="list-row">
+          <b>${esc(item.Asunto || "Comunicado")}</b>
+          <span>
+            ${esc(item.Estado || "—")} ·
+            ${esc(item.Enviados || 0)} enviados /
+            ${esc(item.Fallidos || 0)} fallidos ·
+            ${esc(fmt(item.Fecha))}
+          </span>
+        </article>
+      `).join("")
     : '<p class="muted">Todavía no hay comunicados enviados.</p>';
 }
 
-const commForm = $("communicationForm");
+$("communicationForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
 
-if (commForm) {
-  commForm.addEventListener("submit", async e => {
-    e.preventDefault();
+  const form = $("communicationForm");
+  const button = form.querySelector('[type="submit"]');
+  const status = $("commMessageStatus");
+  const file = $("commFile").files[0];
 
-    const status = $("commMessageStatus");
-    const file = $("commFile").files[0];
+  message("commMessageStatus", "");
+  setButtonBusy(button, true, "Enviando…", "Enviar comunicado");
 
-    try {
-      const payload = {
-        asunto: $("commSubject").value.trim(),
-        mensaje: $("commMessage").value.trim(),
-        grupos: [$("commGroup").value]
-      };
+  try {
+    const payload = {
+      asunto: $("commSubject").value.trim(),
+      mensaje: $("commMessage").value.trim(),
+      grupos: [$("commGroup").value]
+    };
 
-      if (file) {
-        if (!/\.(pdf|doc|docx)$/i.test(file.name)) {
-          throw new Error("Adjunta un PDF, DOC o DOCX.");
-        }
-
-        if (file.size > 8 * 1024 * 1024) {
-          throw new Error(
-            "El adjunto supera el límite provisional de 8 MB."
-          );
-        }
-
-        payload.adjuntoNombre = file.name;
-        payload.adjuntoMime = file.type || "application/octet-stream";
-
-        payload.adjuntoBase64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-
-          reader.onload = () => {
-            resolve(String(reader.result).split(",")[1]);
-          };
-
-          reader.onerror = () => {
-            reject(new Error("No se pudo leer el adjunto."));
-          };
-
-          reader.readAsDataURL(file);
-        });
+    if (file) {
+      if (!/\.(pdf|doc|docx)$/i.test(file.name)) {
+        throw new Error("Adjunta un archivo PDF, DOC o DOCX.");
       }
 
-      const d = await call("comunicadoEnviar", payload);
-
-      if (!d.ok) {
-        throw new Error(d.error || "No se pudo enviar el comunicado.");
+      if (file.size > 8 * 1024 * 1024) {
+        throw new Error("El adjunto supera el límite de 8 MB de este formulario.");
       }
 
-      status.textContent =
-        `Proceso completado: ${d.enviados} enviados y ${d.fallidos} fallidos.`;
-
-      commForm.reset();
-
-      await loadCommunications();
-
-    } catch (err) {
-      status.textContent = err.message;
-      status.classList.add("error");
+      payload.adjuntoNombre = file.name;
+      payload.adjuntoMime = file.type || "application/octet-stream";
+      payload.adjuntoBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+        reader.onerror = () => reject(new Error("No se pudo leer el adjunto."));
+        reader.readAsDataURL(file);
+      });
     }
-  });
-}
 
-/* FILTRO POR TURNO */
-
-const turnFilter = $("projectTurnFilter");
-
-if (turnFilter) {
-  turnFilter.addEventListener("change", () => loadProjects());
+    const data = await call("comunicadoEnviar", payload);
+    if (!data.ok) {
+      throw new Error(data.error || "No se pudo enviar el comunicado.");
     }
-/* CARGA DE MÓDULOS */
 
-async function loadModule(modulo, containerId) {
+    status.textContent =
+      `Proceso completado: ${Number(data.enviados) || 0} enviados y ${Number(data.fallidos) || 0} fallidos.`;
+
+    form.reset();
+    await loadCommunications();
+  } catch (error) {
+    message("commMessageStatus", error.message, true);
+  } finally {
+    setButtonBusy(button, false, "Enviando…", "Enviar comunicado");
+  }
+});
+
+/* MÓDULOS DE CONSULTA */
+
+async function loadModule(moduleName, containerId) {
   const container = $(containerId);
   if (!container) return;
 
   container.innerHTML = '<p class="muted">Cargando información…</p>';
 
-  const d = await call("moduloListar", { modulo });
-
-  if (!d.ok) {
-    throw new Error(d.error || "No se pudo cargar el módulo.");
+  const data = await call("moduloListar", { modulo: moduleName });
+  if (!data.ok) {
+    throw new Error(data.error || `No se pudo cargar ${moduleName}.`);
   }
 
-  const d = await call("moduloGuardar", {
-  modulo: "calendario",
-  item: {
-    Titulo: $("calTitle").value,
-    Tipo: $("calType").value,
-    FechaInicio: $("calStart").value,
-    FechaFin: $("calEnd").value,
-    Descripcion: $("calDescription").value,
-    Visible: true
+  const items =
+    data.items ||
+    data.registros ||
+    data.datos ||
+    data[moduleName] ||
+    [];
+
+  if (!Array.isArray(items) || !items.length) {
+    container.innerHTML = '<p class="muted">No hay registros disponibles.</p>';
+    return;
   }
-  });
+
   container.innerHTML = items.map(item => {
-    const entries = Object.entries(item)
+    const entries = Object.entries(item || {})
       .filter(([key, value]) =>
-        !["Id", "Edicion"].includes(key) &&
-        value !== "" &&
-        value !== null &&
-        value !== undefined
+        !["Id", "Edicion", "Token", "Hash", "Sal"].includes(key) &&
+        value !== "" && value !== null && value !== undefined
       )
-      .slice(0, 6);
+      .slice(0, 7);
 
     return `
       <article class="list-row">
@@ -855,3 +855,16 @@ async function loadModule(modulo, containerId) {
     `;
   }).join("");
 }
+
+/* ESTADO INICIAL */
+
+(function initializeAdmin() {
+  showOnly("loginPanel");
+  showLogout(false);
+
+  document.querySelectorAll(".admin-only").forEach(element => {
+    element.classList.add("hidden");
+  });
+
+  $("sessionLabel").textContent = "Acceso restringido";
+})();
